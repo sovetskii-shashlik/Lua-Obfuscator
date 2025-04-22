@@ -195,197 +195,197 @@ function startMultiLayerObfuscation() {
 
     // Начинаем процесс
     processNextStep();
-}
-
-// Функция для анимированной многослойной обфускации (версия 2)
-function startMultiLayerObfuscationV2() {
-    const input = document.getElementById("input").value.trim();
-    if (!input) {
-        alert("Введи Lua-код сначала!");
-        return;
-    }
-
-    const btn = document.getElementById("multiObfuscateBtnV2");
-    const status = document.getElementById("statusV2");
-    btn.disabled = true;
-    btn.classList.add("processing");
-    btn.textContent = "ОБФУСКАЦИЯ v2...";
-
-    let currentCode = input;
-    const steps = [
-        { method: "prime", name: "Простое число" },
-        { method: "hex", name: "HEX" },
-        { method: "unicode", name: "Unicode" },
-        { method: "base3", name: "Base3" }
-    ];
-
-    let step = 0;
-
-    function processNextStep() {
-        if (step >= steps.length) {
-            // Завершение процесса
-            btn.disabled = false;
-            btn.classList.remove("processing");
-            btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2";
-            status.textContent = "Многослойная обфускация v2 завершена!";
-            return;
         }
 
-        const currentMethod = steps[step];
-        status.textContent = `Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`;
+        // Функция для анимированной многослойной обфускации (версия 2)
+        function startMultiLayerObfuscationV2() {
+            const input = document.getElementById("input").value.trim();
+            if (!input) {
+                alert("Введи Lua-код сначала!");
+                return;
+            }
 
-        // Update the textarea
-        document.getElementById("input").value = currentCode;
+            const btn = document.getElementById("multiObfuscateBtnV2");
+            const status = document.getElementById("statusV2");
+            btn.disabled = true;
+            btn.classList.add("processing");
+            btn.textContent = "ОБФУСКАЦИЯ v2...";
 
-        // Применяем обфускацию
-        currentCode = obfuscate(currentMethod.method, currentCode);
+            let currentCode = input;
+            const steps = [
+                { method: "prime", name: "Простое число" },
+                { method: "hex", name: "HEX" },
+                { method: "unicode", name: "Unicode" },
+                { method: "base3", name: "Base3" }
+            ];
 
-        // Показываем результат в output
-        document.getElementById("output").textContent = currentCode;
+            let step = 0;
 
-        // Задержка перед следующим шагом (1 секунда)
-        step++;
-        setTimeout(processNextStep, 1000);
-    }
+            function processNextStep() {
+                if (step >= steps.length) {
+                    // Завершение процесса
+                    btn.disabled = false;
+                    btn.classList.remove("processing");
+                    btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2";
+                    status.textContent = "Многослойная обфускация v2 завершена!";
+                    return;
+                }
 
-    // Начинаем процесс
-    processNextStep();
-}
+                const currentMethod = steps[step];
+                status.textContent = `Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`;
 
-// Функция для анимированной многослойной обфускации (версия 3)
-function startMultiLayerObfuscationV3() {
-    const input = document.getElementById("input").value.trim();
-    if (!input) {
-        alert("Введи Lua-код сначала!");
-        return;
-    }
+                // Update the textarea
+                document.getElementById("input").value = currentCode;
 
-    const btn = document.getElementById("multiObfuscateBtnV3");
-    const status = document.getElementById("statusV3");
-    btn.disabled = true;
-    btn.classList.add("processing");
-    btn.textContent = "ОБФУСКАЦИЯ v3...";
+                // Применяем обфускацию
+                currentCode = obfuscate(currentMethod.method, currentCode);
 
-    let currentCode = input;
-    const steps = [
-        { method: "hex", name: "HEX" },
-        { method: "base3", name: "Base3" },
-        { method: "unicode", name: "Unicode" },
-        { method: "binary", name: "Binary" }
-    ];
+                // Показываем результат в output
+                document.getElementById("output").textContent = currentCode;
 
-    let step = 0;
+                // Задержка перед следующим шагом (1 секунда)
+                step++;
+                setTimeout(processNextStep, 1000);
+            }
 
-    function processNextStep() {
-        if (step >= steps.length) {
-            // Завершение процесса
-            btn.disabled = false;
-            btn.classList.remove("processing");
-            btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3";
-            status.textContent = "Многослойная обфускация v3 завершена!";
-            return;
+            // Начинаем процесс
+            processNextStep();
         }
 
-        const currentMethod = steps[step];
-        status.textContent = `Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`;
+        // Функция для анимированной многослойной обфускации (версия 3)
+        function startMultiLayerObfuscationV3() {
+            const input = document.getElementById("input").value.trim();
+            if (!input) {
+                alert("Введи Lua-код сначала!");
+                return;
+            }
 
-        // Update the textarea
-        document.getElementById("input").value = currentCode;
+            const btn = document.getElementById("multiObfuscateBtnV3");
+            const status = document.getElementById("statusV3");
+            btn.disabled = true;
+            btn.classList.add("processing");
+            btn.textContent = "ОБФУСКАЦИЯ v3...";
 
-        // Применяем обфускацию
-        currentCode = obfuscate(currentMethod.method, currentCode);
+            let currentCode = input;
+            const steps = [
+                { method: "hex", name: "HEX" },
+                { method: "base3", name: "Base3" },
+                { method: "unicode", name: "Unicode" },
+                { method: "binary", name: "Binary" }
+            ];
 
-        // Показываем результат в output
-        document.getElementById("output").textContent = currentCode;
+            let step = 0;
 
-        // Задержка перед следующим шагом (1 секунда)
-        step++;
-        setTimeout(processNextStep, 1000);
-    }
+            function processNextStep() {
+                if (step >= steps.length) {
+                    // Завершение процесса
+                    btn.disabled = false;
+                    btn.classList.remove("processing");
+                    btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3";
+                    status.textContent = "Многослойная обфускация v3 завершена!";
+                    return;
+                }
 
-    // Начинаем процесс
-    processNextStep();
-}
+                const currentMethod = steps[step];
+                status.textContent = `Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`;
+
+                // Update the textarea
+                document.getElementById("input").value = currentCode;
+
+                // Применяем обфускацию
+                currentCode = obfuscate(currentMethod.method, currentCode);
+
+                // Показываем результат в output
+                document.getElementById("output").textContent = currentCode;
+
+                // Задержка перед следующим шагом (1 секунда)
+                step++;
+                setTimeout(processNextStep, 1000);
+            }
+
+            // Начинаем процесс
+            processNextStep();
+        }
 
 
-// Функция деобфускации
-function deobfuscate() {
-    const input = document.getElementById("input").value.trim();
-    if (!input) {
-        alert("Введите обфусцированный код сначала!");
-        return;
-    }
+        // Функция деобфускации
+        function deobfuscate() {
+            const input = document.getElementById("input").value.trim();
+            if (!input) {
+                alert("Введите обфусцированный код сначала!");
+                return;
+            }
 
-    let output = "";
+            let output = "";
 
-    try {
-        // Попробуем определить тип обфускации
-        // Note: This deobfuscation logic is very basic and heuristic.
-        // It will likely only work for the exact formats produced by the obfuscate function
-        // and won't handle nested or more complex obfuscation.
-        // Also, the 'fakeEval' part is highly unsafe and should NOT be used in production.
+            try {
+                // Попробуем определить тип обфускации
+                // Note: This deobfuscation logic is very basic and heuristic.
+                // It will likely only work for the exact formats produced by the obfuscate function
+                // and won't handle nested or more complex obfuscation.
+                // Also, the 'fakeEval' part is highly unsafe and should NOT be used in production.
 
-        if (input.includes("\\x") && input.includes("loadstring")) {
-            // HEX обфускация
-            // Extract the string content within the loadstring call
-            const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
-            if (stringMatch && stringMatch[1]) {
-                 const hexStr = stringMatch[1];
-                // Replace hex escape sequences with their characters
-                output = hexStr.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
+                if (input.includes("\\x") && input.includes("loadstring")) {
+                    // HEX обфускация
+                    // Extract the string content within the loadstring call
+                    const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
+                    if (stringMatch && stringMatch[1]) {
+                         const hexStr = stringMatch[1];
+                        // Replace hex escape sequences with their characters
+                        output = hexStr.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
                              return String.fromCharCode(parseInt(hex, 16));
                         });
-            }
-        }
-        else if (input.includes("\\u{") && input.includes("loadstring")) {
-            // Unicode обфускация
-             const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
-             if (stringMatch && stringMatch[1]) {
-                  const unicodeStr = stringMatch[1];
-                 // Replace unicode escape sequences
-                 output = unicodeStr.replace(/\\u\{([0-9a-fA-F]+)\}/g, (match, code) => {
+                    }
+                }
+                else if (input.includes("\\u{") && input.includes("loadstring")) {
+                    // Unicode обфускация
+                     const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
+                     if (stringMatch && stringMatch[1]) {
+                          const unicodeStr = stringMatch[1];
+                         // Replace unicode escape sequences
+                         output = unicodeStr.replace(/\\u\{([0-9a-fA-F]+)\}/g, (match, code) => {
                              return String.fromCharCode(parseInt(code, 16));
                          });
-             }
-        }
-        else if (input.includes("\\") && /\\\d{1,3}/.test(input) && input.includes("loadstring")) {
-            // ASCII обфускация
-             const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
-             if (stringMatch && stringMatch[1]) {
-                  const asciiStr = stringMatch[1];
-                 // Replace ASCII escape sequences
-                 output = asciiStr.replace(/\\\d{1,3}/g, (match) => {
+                     }
+                }
+                else if (input.includes("\\") && /\\\d{1,3}/.test(input) && input.includes("loadstring")) {
+                    // ASCII обфускация
+                     const stringMatch = input.match(/loadstring\(["'](.*?)["']\)/);
+                     if (stringMatch && stringMatch[1]) {
+                          const asciiStr = stringMatch[1];
+                         // Replace ASCII escape sequences
+                         output = asciiStr.replace(/\\\d{1,3}/g, (match) => {
                              return String.fromCharCode(parseInt(match.substring(1)));
                          });
-             }
-        }
-        else if (input.includes("string.char(") && input.includes("loadstring")) {
-            // Числовая обфускация
-            const charCodeMatches = input.match(/string\.char\(([^)]+)\)/);
-            if (charCodeMatches && charCodeMatches[1]) {
-                const codes = charCodeMatches[1].split(',').map(Number);
-                codes.forEach(code => {
+                     }
+                }
+                else if (input.includes("string.char(") && input.includes("loadstring")) {
+                    // Числовая обфускация
+                    const charCodeMatches = input.match(/string\.char\(([^)]+)\)/);
+                    if (charCodeMatches && charCodeMatches[1]) {
+                        const codes = charCodeMatches[1].split(',').map(Number);
+                        codes.forEach(code => {
                             output += String.fromCharCode(code);
                         });
-            }
-        }
-         else if (input.includes("tonumber(t,3)") && input.includes(":gmatch") && input.includes("loadstring")) {
-             // Base3 обфускация
-             const base3Match = input.match(/"([012]+)"/);
-             if (base3Match && base3Match[1]) {
-                 const base3Str = base3Match[1];
-                 for (let i = 0; i < base3Str.length; i += 6) {
-                     const base3Chunk = base3Str.substr(i, 6);
-                     // Ensure the chunk is valid base3 before parsing
-                     if (/^[012]+$/.test(base3Chunk)) {
-                         output += String.fromCharCode(parseInt(base3Chunk, 3));
-                     } else {
-                         throw new Error("Invalid Base3 chunk");
+                    }
+                }
+                 else if (input.includes("tonumber(t,3)") && input.includes(":gmatch") && input.includes("loadstring")) {
+                     // Base3 обфускация
+                     const base3Match = input.match(/"([012]+)"/);
+                     if (base3Match && base3Match[1]) {
+                         const base3Str = base3Match[1];
+                         for (let i = 0; i < base3Str.length; i += 6) {
+                             const base3Chunk = base3Str.substr(i, 6);
+                             // Ensure the chunk is valid base3 before parsing
+                             if (/^[012]+$/.test(base3Chunk)) {
+                                 output += String.fromCharCode(parseInt(base3Chunk, 3));
+                             } else {
+                                 throw new Error("Invalid Base3 chunk");
+                             }
+                         }
                      }
                  }
-             }
-         }
-         else if (input.includes("tonumber(b,2)") && input.includes(":gmatch") && input.includes("loadstring")) {
+                 else if (input.includes("tonumber(b,2)") && input.includes(":gmatch") && input.includes("loadstring")) {
                      // Binary обфускация
                      const binaryMatch = input.match(/"([01]+)"/);
                      if (binaryMatch && binaryMatch[1]) {
