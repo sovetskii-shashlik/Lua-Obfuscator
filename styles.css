@@ -41,7 +41,7 @@ textarea {
 #output {
     width: 100%;
     min-height: 60px;
-    padding: 0px;
+    padding: 0px; /* Changed from 10px to 0px to match original behavior of no padding */
     font-family: monospace;
     background-color: #fff;
     border: 2px solid #4CAF50;
@@ -52,10 +52,12 @@ textarea {
     word-wrap: break-word;
     overflow-wrap: break-word;
     user-select: all;
+    /* Add padding here to space the text from the border */
+    padding: 10px;
 }
 .buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive grid */
     gap: 8px;
     margin: 15px 0;
 }
@@ -178,4 +180,15 @@ body.dark-theme .theme-toggle {
 body.dark-theme .status {
     background-color: #333;
     color: #e0e0e0;
+}
+
+/* Adjust button font size for smaller screens */
+@media (max-width: 600px) {
+    .buttons {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+    button {
+        font-size: 0.7rem;
+        padding: 8px;
+    }
 }
