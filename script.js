@@ -333,8 +333,8 @@ function deobfuscate() {
                  const hexStr = stringMatch[1];
                 // Replace hex escape sequences with their characters
                 output = hexStr.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
-                     return String.fromCharCode(parseInt(hex, 16));
-                });
+                             return String.fromCharCode(parseInt(hex, 16));
+                        });
             }
         }
         else if (input.includes("\\u{") && input.includes("loadstring")) {
@@ -344,8 +344,8 @@ function deobfuscate() {
                   const unicodeStr = stringMatch[1];
                  // Replace unicode escape sequences
                  output = unicodeStr.replace(/\\u\{([0-9a-fA-F]+)\}/g, (match, code) => {
-                     return String.fromCharCode(parseInt(code, 16));
-                 });
+                             return String.fromCharCode(parseInt(code, 16));
+                         });
              }
         }
         else if (input.includes("\\") && /\\\d{1,3}/.test(input) && input.includes("loadstring")) {
@@ -355,8 +355,8 @@ function deobfuscate() {
                   const asciiStr = stringMatch[1];
                  // Replace ASCII escape sequences
                  output = asciiStr.replace(/\\\d{1,3}/g, (match) => {
-                     return String.fromCharCode(parseInt(match.substring(1)));
-                 });
+                             return String.fromCharCode(parseInt(match.substring(1)));
+                         });
              }
         }
         else if (input.includes("string.char(") && input.includes("loadstring")) {
@@ -365,8 +365,8 @@ function deobfuscate() {
             if (charCodeMatches && charCodeMatches[1]) {
                 const codes = charCodeMatches[1].split(',').map(Number);
                 codes.forEach(code => {
-                    output += String.fromCharCode(code);
-                });
+                            output += String.fromCharCode(code);
+                        });
             }
         }
          else if (input.includes("tonumber(t,3)") && input.includes(":gmatch") && input.includes("loadstring")) {
@@ -386,198 +386,282 @@ function deobfuscate() {
              }
          }
          else if (input.includes("tonumber(b,2)") && input.includes(":gmatch") && input.includes("loadstring")) {
-             // Binary обфускация
-             const binaryMatch = input.match(/"([01]+)"/);
-             if (binaryMatch && binaryMatch[1]) {
-                 const binaryStr = binaryMatch[1];
-                 for (let i = 0; i < binaryStr.length; i += 8) {
-                     const binaryChunk = binaryStr.substr(i, 8);
-                     // Ensure the chunk is valid binary
-                     if (/^[01]+$/.test(binaryChunk)) {
-                          output += String.fromCharCode(parseInt(binaryChunk, 2));
-                     } else {
-                         throw new Error("Invalid Binary chunk");
+                     // Binary обфускация
+                     const binaryMatch = input.match(/"([01]+)"/);
+                     if (binaryMatch && binaryMatch[1]) {
+                         const binaryStr = binaryMatch[1];
+                         for (let i = 0; i < binaryStr.length; i += 8) {
+                             const binaryChunk = binaryStr.substr(i, 8);
+                             // Ensure the chunk is valid binary
+                             if (/^[01]+$/.test(binaryChunk)) {
+                                  output += String.fromCharCode(parseInt(binaryChunk, 2));
+                             } else {
+                                 throw new Error("Invalid Binary chunk");
+                             }
+                         }
                      }
                  }
-             }
-         }
-        else if (input.includes("tonumber(t,4)") && input.includes(":gmatch") && input.includes("loadstring")) {
-            // Base4 обфускация
-             const base4Match = input.match(/"([0-3]+)"/);
-             if (base4Match && base4Match[1]) {
-                 const base4Str = base4Match[1];
-                 for (let i = 0; i < base4Str.length; i += 4) {
-                     const base4Chunk = base4Str.substr(i, 4);
-                      if (/^[0-3]+$/.test(base4Chunk)) {
-                         output += String.fromCharCode(parseInt(base4Chunk, 4));
-                     } else {
-                         throw new Error("Invalid Base4 chunk");
+                else if (input.includes("tonumber(t,4)") && input.includes(":gmatch") && input.includes("loadstring")) {
+                    // Base4 обфускация
+                     const base4Match = input.match(/"([0-3]+)"/);
+                     if (base4Match && base4Match[1]) {
+                         const base4Str = base4Match[1];
+                         for (let i = 0; i < base4Str.length; i += 4) {
+                             const base4Chunk = base4Str.substr(i, 4);
+                              if (/^[0-3]+$/.test(base4Chunk)) {
+                                 output += String.fromCharCode(parseInt(base4Chunk, 4));
+                             } else {
+                                 throw new Error("Invalid Base4 chunk");
+                             }
+                         }
                      }
-                 }
-             }
-        }
-        else if (input.includes("tonumber(t,5)") && input.includes(":gmatch") && input.includes("loadstring")) {
-            // Base5 обфускация
-             const base5Match = input.match(/"([0-4]+)"/);
-             if (base5Match && base5Match[1]) {
-                 const base5Str = base5Match[1];
-                 for (let i = 0; i < base5Str.length; i += 4) {
-                     const base5Chunk = base5Str.substr(i, 4);
-                      if (/^[0-4]+$/.test(base5Chunk)) {
-                         output += String.fromCharCode(parseInt(base5Chunk, 5));
-                     } else {
-                         throw new Error("Invalid Base5 chunk");
-                     }
-                 }
-             }
-        }
-        else if (input.includes("tonumber(t,8)") && input.includes(":gmatch") && input.includes("loadstring")) {
-            // Octal обфускация
-             const octalMatch = input.match(/"([0-7]+)"/);
-             if (octalMatch && octalMatch[1]) {
-                 const octalStr = octalMatch[1];
-                 for (let i = 0; i < octalStr.length; i += 3) {
-                     const octalChunk = octalStr.substr(i, 3);
-                      if (/^[0-7]+$/.test(octalChunk)) {
-                         output += String.fromCharCode(parseInt(octalChunk, 8));
-                     } else {
-                         throw new Error("Invalid Octal chunk");
-                     }
-                 }
-             }
-        }
-        else if (input.includes("math.max(#a,#b)") && input.includes("loadstring")) {
-            // Чересполосица
-            const arrayMatches = input.match(/\{([^}]+)\}/g);
-            if (arrayMatches && arrayMatches.length >= 2) {
-                const array1 = arrayMatches[0].slice(1, -1).split(',').map(Number);
-                const array2 = arrayMatches[1].slice(1, -1).split(',').map(Number);
-                for (let i = 0; i < Math.max(array1.length, array2.length); i++) {
-                    if (!isNaN(array1[i])) output += String.fromCharCode(array1[i]);
-                    if (!isNaN(array2[i])) output += String.fromCharCode(array2[i]);
                 }
-            }
-        }
-        else if (input.includes("t[i]//t[i+1]") && input.includes("loadstring")) {
-            // Простое число
-            const arrayMatch = input.match(/\{([^}]+)\}/);
-            if (arrayMatch && arrayMatch[1]) {
-                const numbers = arrayMatch[1].split(',').map(Number);
-                for (let i = 0; i < numbers.length; i += 2) {
-                     // Check if the division is valid
-                    if (!isNaN(numbers[i]) && !isNaN(numbers[i+1]) && numbers[i+1] !== 0) {
-                         output += String.fromCharCode(numbers[i] / numbers[i+1]);
-                    } else {
-                        throw new Error("Invalid numbers for Prime deobfuscation");
+                else if (input.includes("tonumber(t,5)") && input.includes(":gmatch") && input.includes("loadstring")) {
+                    // Base5 обфускация
+                     const base5Match = input.match(/"([0-4]+)"/);
+                     if (base5Match && base5Match[1]) {
+                         const base5Str = base5Match[1];
+                         for (let i = 0; i < base5Str.length; i += 4) {
+                             const base5Chunk = base5Str.substr(i, 4);
+                              if (/^[0-4]+$/.test(base5Chunk)) {
+                                 output += String.fromCharCode(parseInt(base5Chunk, 5));
+                             } else {
+                                 throw new Error("Invalid Base5 chunk");
+                             }
+                         }
+                     }
+                }
+                else if (input.includes("tonumber(t,8)") && input.includes(":gmatch") && input.includes("loadstring")) {
+                    // Octal обфускация
+                     const octalMatch = input.match(/"([0-7]+)"/);
+                     if (octalMatch && octalMatch[1]) {
+                         const octalStr = octalMatch[1];
+                         for (let i = 0; i < octalStr.length; i += 3) {
+                             const octalChunk = octalStr.substr(i, 3);
+                              if (/^[0-7]+$/.test(octalChunk)) {
+                                 output += String.fromCharCode(parseInt(octalChunk, 8));
+                             } else {
+                                 throw new Error("Invalid Octal chunk");
+                             }
+                         }
+                     }
+                }
+                else if (input.includes("math.max(#a,#b)") && input.includes("loadstring")) {
+                    // Чересполосица
+                    const arrayMatches = input.match(/\{([^}]+)\}/g);
+                    if (arrayMatches && arrayMatches.length >= 2) {
+                        const array1 = arrayMatches[0].slice(1, -1).split(',').map(Number);
+                        const array2 = arrayMatches[1].slice(1, -1).split(',').map(Number);
+                        for (let i = 0; i < Math.max(array1.length, array2.length); i++) {
+                            if (!isNaN(array1[i])) output += String.fromCharCode(array1[i]);
+                            if (!isNaN(array2[i])) output += String.fromCharCode(array2[i]);
+                        }
                     }
                 }
-            }
-        }
-        else if (input.includes(":gsub('.',function(c)") && input.includes("loadstring")) {
-            // Смещение
-            const offsetMatch = input.match(/string\.char\(([^)]+)\)/);
-            const offsetValueMatch = input.match(/c:byte\(\)-(\d+)/);
-            if (offsetMatch && offsetMatch[1] && offsetValueMatch && offsetValueMatch[1]) {
-                const offset = parseInt(offsetValueMatch[1]);
-                const codes = offsetMatch[1].split(',').map(Number);
-                codes.forEach(code => {
-                     if (!isNaN(code) && !isNaN(offset)) {
-                       output += String.fromCharCode(code - offset);
+                else if (input.includes("t[i]//t[i+1]") && input.includes("loadstring")) {
+                    // Простое число
+                    const arrayMatch = input.match(/\{([^}]+)\}/);
+                    if (arrayMatch && arrayMatch[1]) {
+                        const numbers = arrayMatch[1].split(',').map(Number);
+                        for (let i = 0; i < numbers.length; i += 2) {
+                             // Check if the division is valid
+                            if (!isNaN(numbers[i]) && !isNaN(numbers[i+1]) && numbers[i+1] !== 0) {
+                                 output += String.fromCharCode(numbers[i] / numbers[i+1]);
+                            } else {
+                                throw new Error("Invalid numbers for Prime deobfuscation");
+                            }
+                        }
+                    }
+                }
+                else if (input.includes(":gsub('.',function(c)") && input.includes("loadstring")) {
+                    // Смещение
+                    const offsetMatch = input.match(/string\.char\(([^)]+)\)/);
+                    const offsetValueMatch = input.match(/c:byte\(\)-(\d+)/);
+                    if (offsetMatch && offsetMatch[1] && offsetValueMatch && offsetValueMatch[1]) {
+                        const offset = parseInt(offsetValueMatch[1]);
+                        const codes = offsetMatch[1].split(',').map(Number);
+                        codes.forEach(code => {
+                             if (!isNaN(code) && !isNaN(offset)) {
+                               output += String.fromCharCode(code - offset);
+                            } else {
+                                 throw new Error("Invalid numbers for Offset deobfuscation");
+                            }
+                        });
+                    }
+                }
+                else {
+                    // If not recognized, try a simple approach: remove loadstring and surrounding quotes/parentheses
+                    // This is a very weak deobfuscation attempt.
+                    const simpleMatch = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s);
+                    if (simpleMatch && simpleMatch[1]) {
+                         output = simpleMatch[1];
+                         // Simple unescape for common escapes if any remain
+                         output = output.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
                     } else {
-                         throw new Error("Invalid numbers for Offset deobfuscation");
+                         // Fallback to indicating failure
+                         output = "Не удалось распознать тип обфускации или применить простую деобфускацию.";
+                    }
+                }
+            } catch (e) {
+                output = "Ошибка деобфускации: " + e.message;
+            }
+
+            document.getElementById("output").textContent = output || "Не удалось деобфусцировать код";
+        }
+
+        // Функция копирования
+        function copyToClipboard() {
+            const output = document.getElementById("output");
+            const text = output.textContent;
+
+            if (!text) {
+                alert("Сначала сгенерируйте обфусцированный код!");
+                return;
+            }
+
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    const btn = document.querySelector(".copy-btn");
+                    btn.textContent = "СКОПИРОВАНО!";
+                    btn.classList.add("copied");
+
+                    setTimeout(() => {
+                        btn.textContent = "КОПИРОВАТЬ";
+                        btn.classList.remove("copied");
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error("Ошибка копирования: ", err);
+                    // Fallback для старых браузеров
+                    const textarea = document.createElement("textarea");
+                    textarea.value = text;
+                    // Make the textarea invisible and remove it from the flow
+                    textarea.style.position = "fixed";
+                    textarea.style.top = "0";
+                    textarea.style.left = "0";
+                    textarea.style.width = "1px";
+                    textarea.style.height = "1px";
+                    textarea.style.padding = "0";
+                    textarea.style.border = "none";
+                    textarea.style.outline = "none";
+                    textarea.style.boxShadow = "none";
+                    textarea.style.background = "transparent";
+
+
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand("copy");
+                         const btn = document.querySelector(".copy-btn");
+                         btn.textContent = "Скопировано (fallback)";
+                         btn.classList.add("copied"); // Add copied class for feedback
+
+                         setTimeout(() => {
+                             btn.textContent = "КОПИРОВАТЬ";
+                             btn.classList.remove("copied");
+                         }, 2000);
+
+                    } catch (e) {
+                        console.error("Fallback copying failed: ", e);
+                         const btn = document.querySelector(".copy-btn");
+                         btn.textContent = "Не удалось скопировать";
+                         setTimeout(() => {
+                              btn.textContent = "КОПИРОВАТЬ";
+                         }, 2000);
+                    } finally {
+                         document.body.removeChild(textarea);
                     }
                 });
-            }
         }
-        else {
-            // If not recognized, try a simple approach: remove loadstring and surrounding quotes/parentheses
-            // This is a very weak deobfuscation attempt.
-            const simpleMatch = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s);
-            if (simpleMatch && simpleMatch[1]) {
-                 output = simpleMatch[1];
-                 // Simple unescape for common escapes if any remain
-                 output = output.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+
+        // --- Сохранение файла ---
+        const saveButton = document.getElementById('saveButton');
+        const saveFileDialog = document.getElementById('saveFileDialog');
+        const fileNameInput = document.getElementById('fileNameInput');
+        const saveFileOkBtn = document.getElementById('saveFileOkBtn');
+        const saveFileCancelBtn = document.getElementById('saveFileCancelBtn');
+        const formatDialog = document.getElementById('formatDialog');
+        const saveLuaBtn = document.getElementById('saveLuaBtn');
+        const saveTextBtn = document.getElementById('saveTextBtn');
+
+        let currentFileName = ''; // Variable to store the chosen filename
+
+        // Show the file name dialog
+        saveButton.addEventListener('click', () => {
+            const outputText = document.getElementById("output").textContent.trim();
+            if (!outputText) {
+                alert("Нет кода для сохранения. Сначала проведите обфускацию.");
+                return;
+            }
+            saveFileDialog.style.display = 'flex'; // Show dialog
+            fileNameInput.value = ''; // Clear previous input
+            fileNameInput.focus(); // Focus the input field
+             formatDialog.style.display = 'none'; // Hide format dialog if it was open
+        });
+
+        // Handle OK button in file name dialog
+        saveFileOkBtn.addEventListener('click', () => {
+            const filename = fileNameInput.value.trim();
+            if (filename) {
+                currentFileName = filename; // Store filename
+                saveFileDialog.style.display = 'none'; // Hide name dialog
+                formatDialog.style.display = 'flex'; // Show format dialog
             } else {
-                 // Fallback to indicating failure
-                 output = "Не удалось распознать тип обфускации или применить простую деобфускацию.";
-            }
-        }
-    } catch (e) {
-        output = "Ошибка деобфускации: " + e.message;
-    }
-
-    document.getElementById("output").textContent = output || "Не удалось деобфусцировать код";
-}
-
-// Функция копирования
-function copyToClipboard() {
-    const output = document.getElementById("output");
-    const text = output.textContent;
-
-    if (!text) {
-        alert("Сначала сгенерируйте обфусцированный код!");
-        return;
-    }
-
-    navigator.clipboard.writeText(text)
-        .then(() => {
-            const btn = document.querySelector(".copy-btn");
-            btn.textContent = "СКОПИРОВАНО!";
-            btn.classList.add("copied");
-
-            setTimeout(() => {
-                btn.textContent = "КОПИРОВАТЬ";
-                btn.classList.remove("copied");
-            }, 2000);
-        })
-        .catch(err => {
-            console.error("Ошибка копирования: ", err);
-            // Fallback для старых браузеров
-            const textarea = document.createElement("textarea");
-            textarea.value = text;
-            // Make the textarea invisible and remove it from the flow
-            textarea.style.position = "fixed";
-            textarea.style.top = "0";
-            textarea.style.left = "0";
-            textarea.style.width = "1px";
-            textarea.style.height = "1px";
-            textarea.style.padding = "0";
-            textarea.style.border = "none";
-            textarea.style.outline = "none";
-            textarea.style.boxShadow = "none";
-            textarea.style.background = "transparent";
-
-
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand("copy");
-                 const btn = document.querySelector(".copy-btn");
-                 btn.textContent = "Скопировано (fallback)";
-                 btn.classList.add("copied"); // Add copied class for feedback
-
-                 setTimeout(() => {
-                     btn.textContent = "КОПИРОВАТЬ";
-                     btn.classList.remove("copied");
-                 }, 2000);
-
-            } catch (e) {
-                console.error("Fallback copying failed: ", e);
-                 const btn = document.querySelector(".copy-btn");
-                 btn.textContent = "Не удалось скопировать";
-                 setTimeout(() => {
-                      btn.textContent = "КОПИРОВАТЬ";
-                 }, 2000);
-            } finally {
-                 document.body.removeChild(textarea);
+                alert("Введите имя файла!");
+                fileNameInput.focus();
             }
         });
-}
 
-// Автовыделение при клике на результат
-document.getElementById("output").addEventListener("click", function() {
-    const range = document.createRange();
-    range.selectNode(this);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-});
+         // Handle Enter key in file name input
+         fileNameInput.addEventListener('keypress', (event) => {
+             if (event.key === 'Enter') {
+                 event.preventDefault(); // Prevent default form submission if any
+                 saveFileOkBtn.click(); // Simulate click on OK button
+             }
+         });
+
+        // Handle Cancel button in file name dialog
+        saveFileCancelBtn.addEventListener('click', () => {
+            saveFileDialog.style.display = 'none'; // Hide name dialog
+        });
+
+        // Handle format selection
+        saveLuaBtn.addEventListener('click', () => {
+            downloadFile(currentFileName, 'lua');
+            formatDialog.style.display = 'none'; // Hide format dialog
+        });
+
+        saveTextBtn.addEventListener('click', () => {
+            downloadFile(currentFileName, 'txt');
+            formatDialog.style.display = 'none'; // Hide format dialog
+        });
+
+        // Function to download the file
+        function downloadFile(filename, format) {
+            const outputText = document.getElementById("output").textContent;
+            // Использование application/octet-stream для предотвращения двойного расширения
+            const blob = new Blob([outputText], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.${format}`; // Set the download filename
+            document.body.appendChild(a); // Append to body to make it clickable
+            a.click(); // Trigger the download
+
+            // Clean up
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+        // Автовыделение при клике на результат
+        document.getElementById("output").addEventListener("click", function() {
+            const range = document.createRange();
+            range.selectNode(this);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+        });
+    </script>
+</body>
+</html>
