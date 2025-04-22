@@ -1,19 +1,182 @@
-// Переключение темы
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme');
-    const isDark = document.body.classList.contains('dark-theme');
-    themeToggle.textContent = isDark ? '☀️' : '🌙';
-    localStorage.setItem('darkTheme', isDark);
+// ========== Глобальные переменные ========== //
+let currentObfuscationStep = 0;
+const obfuscationMethods = [
+    'ascii', 'hex', 'unicode', 'number', 'base3', 
+    'binary', 'base4', 'base5', 'octal', 'interleave', 
+    'prime', 'offset'
+];
+
+// ========== Инициализация ========== //
+document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
+    initButtons();
+    initDialogs();
 });
 
-// Проверяем сохранённую тему при загрузке
-if (localStorage.getItem('darkTheme') === 'true') {
-    document.body.classList.add('dark-theme');
-    themeToggle.textContent = '☀️';
+// ========== Тема ========== //
+function initTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    if (localStorage.getItem('darkTheme') === 'true') {
+        document.body.classList.add('dark-theme');
+        themeToggle.textContent = '☀️';
+    }
+    
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        themeToggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkTheme', isDark);
+    });
 }
 
-// Все методы обфускации в одну строку
+// ========== Кнопки ========== //
+function initButtons() {
+    // Кнопки обфускации
+    document.querySelectorAll('.buttons button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const method = this.textContent.toLowerCase();
+            obfuscate(method);
+        });
+    });
+    
+    // Копирование
+    document.querySelector('.copy-btn').addEventListener('click', copyToClipboard);
+    
+    // Деобфускация
+    document.querySelector('.deobfuscate-btn').addEventListener('click', deobfuscate);
+    
+    // Многослойная обфускация
+    document.getElementById('multiObfuscateBtn').addEventListener('click', startMultiLayerObfuscation);
+    document.getElementById('multiObfuscateBtnV2').addEventListener('click', startMultiLayerObfuscationV2);
+    document.getElementById('multiObfuscateBtnV3').addEventListener('click', startMultiLayerObfuscationV3);
+    
+    // Сохранение
+    document.getElementById('saveButton').addEventListener('click', startFileSaveProcess);
+}
+
+// ========== Диалоги ========== //
+function initDialogs() {
+    // Диалог имени файла
+    document.getElementById('saveFileOkBtn').addEventListener('click', function() {
+        hideDialog('saveFileDialog');
+        const filename = document.getElementById('fileNameInput').value.trim() || 'obfuscated_code';
+        showDialog('formatDialog');
+        window.pendingFilename = filename;
+    });
+    
+    document.getElementById('saveFileCancelBtn').addEventListener('click', function() {
+        hideDialog('saveFileDialog');
+    });
+    
+    // Диалог формата
+    document.getElementById('saveLuaBtn').addEventListener('click', function() {
+        hideDialog('formatDialog');
+        saveFile(window.pendingFilename + '.lua');
+    });
+    
+    document.getElementById('saveTextBtn').addEventListener('click', function() {
+        hideDialog('formatDialog');
+        saveFile(window.pendingFilename + '.txt');
+    });
+}
+
+// ========== Сохранение файла ========== //
+function startFileSaveProcess() {
+    const content = document.getElementById("output").textContent.trim();
+    if (!content) {
+        showAlert("Нет данных для сохранения!");
+        return;
+    }
+    showDialog('saveFileDialog');
+    document.getElementById('fileNameInput').value = '';
+    document.getElementById('fileNameInput').focus();
+}
+
+async function saveFile(filename) {
+    const content = document.getElementById("output").textContent;
+    const extension = filename.split('.').pop();
+    const mimeType = extension === 'lua' ? 'text/x-lua' : 'text/plain';
+
+    try {
+        // 1. Современные браузеры
+        if ('showSaveFilePicker' in window) {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{
+                    description: `${extension.toUpperCase()} Files`,
+                    accept: { [mimeType]: [`.${extension}`] },
+                }],
+            });
+            
+            const writable = await handle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            showAlert(`Файл сохранен как ${handle.name}`);
+            return;
+        }
+
+        // 2. Cordova/PhoneGap
+        if (window.cordova) {
+            await new Promise((resolve, reject) => {
+                window.resolveLocalFileSystemURL(
+                    cordova.file.externalRootDirectory,
+                    dir => {
+                        dir.getFile(filename, {create: true}, fileEntry => {
+                            fileEntry.createWriter(writer => {
+                                writer.onwriteend = () => {
+                                    showAlert(`Файл сохранен в: ${fileEntry.nativeURL}`);
+                                    resolve();
+                                };
+                                writer.write(content);
+                            }, reject);
+                        }, reject);
+                    },
+                    reject
+                );
+            });
+            return;
+        }
+
+        // 3. Electron
+        if (typeof process !== 'undefined' && process.versions.electron) {
+            const { dialog } = require('electron').remote;
+            const { writeFileSync } = require('fs');
+            
+            const result = await dialog.showSaveDialog({
+                defaultPath: filename,
+                filters: [
+                    { name: `${extension.toUpperCase()} Files`, extensions: [extension] }
+                ]
+            });
+            
+            if (!result.canceled) {
+                writeFileSync(result.filePath, content);
+                showAlert(`Файл сохранен в: ${result.filePath}`);
+                return;
+            }
+        }
+
+        // 4. Fallback для старых браузеров
+        const blob = new Blob([content], {type: mimeType});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAlert(`Файл ${filename} сохранен`);
+        }, 100);
+
+    } catch (error) {
+        console.error("Ошибка сохранения:", error);
+        showAlert("Не удалось сохранить файл. Скопируйте текст вручную.");
+    }
+}
+
+// ========== Обфускация ========== //
 function obfuscate(method, inputText) {
     const input = inputText || document.getElementById("input").value.trim();
     if (!input) {
@@ -23,7 +186,7 @@ function obfuscate(method, inputText) {
 
     let output = "";
 
-    // 1. ASCII обфускация (\104\101\108\108\111)
+    // ASCII обфускация (\104\101\108\108\111)
     if (method === "ascii") {
         let escaped = "";
         for (let i = 0; i < input.length; i++) {
@@ -32,7 +195,7 @@ function obfuscate(method, inputText) {
         output = `loadstring("${escaped}")()`;
     }
 
-    // 2. HEX обфускация (\x68\x65\x6c\x6c\x6f)
+    // HEX обфускация (\x68\x65\x6c\x6c\x6f)
     else if (method === "hex") {
         let hexStr = "";
         for (let i = 0; i < input.length; i++) {
@@ -41,7 +204,7 @@ function obfuscate(method, inputText) {
         output = `loadstring("${hexStr}")()`;
     }
 
-    // 3. Unicode обфускация (\u{0068}\u{0065}\u{006c}\u{006c}\u{006f})
+    // Unicode обфускация (\u{0068}\u{0065}\u{006c}\u{006c}\u{006f})
     else if (method === "unicode") {
         let unicodeStr = "";
         for (let i = 0; i < input.length; i++) {
@@ -50,7 +213,7 @@ function obfuscate(method, inputText) {
         output = `loadstring("${unicodeStr}")()`;
     }
 
-    // 4. Числовая обфускация (string.char(104,101,108,108,111))
+    // Числовая обфускация (string.char(104,101,108,108,111))
     else if (method === "number") {
         let numbers = [];
         for (let i = 0; i < input.length; i++) {
@@ -59,7 +222,7 @@ function obfuscate(method, inputText) {
         output = `loadstring(string.char(${numbers.join(",")}))()`;
     }
 
-    // 5. Троичная обфускация (base3)
+    // Троичная обфускация (base3)
     else if (method === "base3") {
         let base3Parts = [];
         for (let i = 0; i < input.length; i++) {
@@ -68,7 +231,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function() local s="" for t in ("${base3Parts.join('')}"):gmatch("%d%d%d%d%d%d") do s=s..string.char(tonumber(t,3)) end return s end)())()`;
     }
 
-    // 6. Бинарная обфускация (binary)
+    // Бинарная обфускация (binary)
     else if (method === "binary") {
         let binaryStr = "";
         for (let i = 0; i < input.length; i++) {
@@ -77,7 +240,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function() local s="" for b in ("${binaryStr}"):gmatch("%d%d%d%d%d%d%d%d") do s=s..string.char(tonumber(b,2)) end return s end)())()`;
     }
 
-    // 7. Четверичная обфускация (base4)
+    // Четверичная обфускация (base4)
     else if (method === "base4") {
         let base4Parts = [];
         for (let i = 0; i < input.length; i++) {
@@ -86,7 +249,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function() local s="" for t in ("${base4Parts.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,4)) end return s end)())()`;
     }
 
-    // 8. Пятиричная обфускация (base5)
+    // Пятиричная обфускация (base5)
     else if (method === "base5") {
         let base5Parts = [];
         for (let i = 0; i < input.length; i++) {
@@ -95,7 +258,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function() local s="" for t in ("${base5Parts.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,5)) end return s end)())()`;
     }
 
-    // 9. Восьмеричная обфускация (octal)
+    // Восьмеричная обфускация (octal)
     else if (method === "octal") {
         let octalParts = [];
         for (let i = 0; i < input.length; i++) {
@@ -104,7 +267,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function() local s="" for t in ("${octalParts.join('')}"):gmatch("%d%d%d") do s=s..string.char(tonumber(t,8)) end return s end)())()`;
     }
 
-    // 10. Чересполосица (перемешивание символов)
+    // Чересполосица (перемешивание символов)
     else if (method === "interleave") {
         let parts = [[], []];
         for (let i = 0; i < input.length; i++) {
@@ -113,7 +276,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function(a,b)local s=''for i=1,math.max(#a,#b)do if a[i]then s=s..string.char(a[i])end if b[i]then s=s..string.char(b[i])end end return s end)({${parts[0].join(',')}},{${parts[1].join(',')}}))()`;
     }
 
-    // 11. Простое число (умножение на простые числа)
+    // Простое число (умножение на простые числа)
     else if (method === "prime") {
         const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
         let transformed = [];
@@ -125,7 +288,7 @@ function obfuscate(method, inputText) {
         output = `loadstring((function(t)local s=''for i=1,#t,2 do s=s..string.char(t[i]//t[i+1])end return s end)({${transformed.join(',')}}))()`;
     }
 
-    // 12. Смещение символов (добавление константы)
+    // Смещение символов (добавление константы)
     else if (method === "offset") {
         const offset = 5;
         let transformed = [];
@@ -141,7 +304,7 @@ function obfuscate(method, inputText) {
     return output;
 }
 
-// Функция для анимированной многослойной обфускации (версия 1)
+// ========== Многослойная обфускация ========== //
 function startMultiLayerObfuscation() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -185,7 +348,6 @@ function startMultiLayerObfuscation() {
     processNextStep();
 }
 
-// Функция для анимированной многослойной обфускации (версия 2)
 function startMultiLayerObfuscationV2() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -230,7 +392,6 @@ function startMultiLayerObfuscationV2() {
     processNextStep();
 }
 
-// Функция для анимированной многослойной обфускации (версия 3)
 function startMultiLayerObfuscationV3() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -275,7 +436,7 @@ function startMultiLayerObfuscationV3() {
     processNextStep();
 }
 
-// Функция деобфускации
+// ========== Деобфускация ========== //
 function deobfuscate() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -400,7 +561,19 @@ function deobfuscate() {
     document.getElementById("output").textContent = output || "Не удалось деобфусцировать код";
 }
 
-// Функция копирования
+// ========== Вспомогательные функции ========== //
+function showDialog(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+
+function hideDialog(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+function showAlert(message) {
+    alert(message);
+}
+
 function copyToClipboard() {
     const output = document.getElementById("output");
     const text = output.textContent;
@@ -420,7 +593,6 @@ function copyToClipboard() {
         }, 2000);
     }).catch(err => {
         console.error("Ошибка копирования:", err);
-        // Fallback для старых браузеров
         const textarea = document.createElement("textarea");
         textarea.value = text;
         textarea.style.position = "fixed";
@@ -447,167 +619,3 @@ function copyToClipboard() {
         }
     });
 }
-
-// --- Универсальное сохранение файла ---
-const saveButton = document.getElementById('saveButton');
-const saveFileDialog = document.getElementById('saveFileDialog');
-const fileNameInput = document.getElementById('fileNameInput');
-const saveFileOkBtn = document.getElementById('saveFileOkBtn');
-const saveFileCancelBtn = document.getElementById('saveFileCancelBtn');
-const formatDialog = document.getElementById('formatDialog');
-const saveLuaBtn = document.getElementById('saveLuaBtn');
-const saveTextBtn = document.getElementById('saveTextBtn');
-
-let currentFileName = '';
-
-// Показываем диалог сохранения
-saveButton.addEventListener('click', () => {
-    const outputText = document.getElementById("output").textContent.trim();
-    if (!outputText) {
-        showAlert("Нет кода для сохранения. Сначала проведите обфускацию.");
-        return;
-    }
-    saveFileDialog.style.display = 'flex';
-    fileNameInput.value = '';
-    fileNameInput.focus();
-    formatDialog.style.display = 'none';
-});
-
-// Обработчики диалогов
-saveFileOkBtn.addEventListener('click', () => {
-    const filename = fileNameInput.value.trim();
-    if (filename) {
-        currentFileName = filename;
-        saveFileDialog.style.display = 'none';
-        formatDialog.style.display = 'flex';
-    } else {
-        showAlert("Введите имя файла!");
-        fileNameInput.focus();
-    }
-});
-
-fileNameInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') saveFileOkBtn.click();
-});
-
-saveFileCancelBtn.addEventListener('click', () => {
-    saveFileDialog.style.display = 'none';
-});
-
-// Выбор формата файла
-saveLuaBtn.addEventListener('click', () => {
-    saveFile(currentFileName, 'lua');
-    formatDialog.style.display = 'none';
-});
-
-saveTextBtn.addEventListener('click', () => {
-    saveFile(currentFileName, 'txt');
-    formatDialog.style.display = 'none';
-});
-
-// Универсальная функция сохранения
-function saveFile(filename, extension) {
-    const content = document.getElementById("output").textContent;
-    const fullFilename = `${filename}.${extension}`;
-    const mimeType = extension === 'lua' ? 'text/x-lua' : 'text/plain';
-
-    // 1. Попробовать стандартный метод Blob (работает в браузерах)
-    if (typeof Blob !== 'undefined') {
-        try {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fullFilename;
-            document.body.appendChild(a);
-            a.click();
-            
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
-            
-            showAlert(`Файл ${fullFilename} успешно сохранен!`);
-            return;
-        } catch (e) {
-            console.error("Blob method failed:", e);
-        }
-    }
-
-    // 2. Попробовать Cordova/PhoneGap (для мобильных приложений)
-    if (window.cordova || window.Capacitor) {
-        try {
-            const path = cordova.file.externalRootDirectory + fullFilename;
-            window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, 
-                (dir) => {
-                    dir.getFile(fullFilename, { create: true }, 
-                        (file) => {
-                            file.createWriter(
-                                (writer) => {
-                                    writer.write(content);
-                                    showAlert(`Файл сохранен в: ${path}`);
-                                }, 
-                                (error) => showAlert("Ошибка записи: " + error.code)
-                            );
-                        }, 
-                        (error) => showAlert("Ошибка создания файла: " + error.code)
-                    );
-                }, 
-                (error) => showAlert("Ошибка доступа к хранилищу: " + error.code)
-            );
-            return;
-        } catch (e) {
-            console.error("Cordova method failed:", e);
-        }
-    }
-
-    // 3. Попробовать Electron (для десктоп приложений)
-    if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
-        try {
-            const fs = require('fs');
-            const { dialog } = require('electron').remote;
-            
-            dialog.showSaveDialog({
-                title: 'Сохранить файл',
-                defaultPath: fullFilename,
-                filters: [
-                    { name: 'Lua Files', extensions: ['lua'] },
-                    { name: 'Text Files', extensions: ['txt'] }
-                ]
-            }).then(result => {
-                if (!result.canceled && result.filePath) {
-                    fs.writeFileSync(result.filePath, content);
-                    showAlert(`Файл сохранен в: ${result.filePath}`);
-                }
-            });
-            return;
-        } catch (e) {
-            console.error("Electron method failed:", e);
-        }
-    }
-
-    // 4. Ultimate fallback - открыть в новом окне
-    try {
-        const newWindow = window.open("", "_blank");
-        newWindow.document.write(`<pre>${content}</pre>`);
-        newWindow.document.title = fullFilename;
-        showAlert("Не удалось сохранить файл. Код открыт в новом окне.");
-    } catch (e) {
-        console.error("All methods failed:", e);
-        showAlert("Ошибка при сохранении файла. Скопируйте код вручную.");
-    }
-}
-
-// Вспомогательная функция для показа сообщений
-function showAlert(message) {
-    alert(message);
-}
-
-// Автовыделение при клике на результат
-document.getElementById("output").addEventListener("click", function() {
-    const range = document.createRange();
-    range.selectNode(this);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-});
