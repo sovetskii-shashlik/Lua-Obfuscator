@@ -53,7 +53,7 @@ textarea {
     overflow-wrap: break-word;
     user-select: all;
     /* Add padding here to space the text from the border */
-    padding: 10px;
+    padding: 0px;
 }
 .buttons {
     display: grid;
