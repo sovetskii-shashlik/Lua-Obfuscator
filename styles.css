@@ -41,7 +41,7 @@ textarea {
 #output {
     width: 100%;
     min-height: 60px;
-    padding: 0px; /* Changed from 10px to 0px to match original behavior of no padding */
+    padding: 0px; /* Возвращено к исходному значению */
     font-family: monospace;
     background-color: #fff;
     border: 2px solid #4CAF50;
@@ -52,8 +52,6 @@ textarea {
     word-wrap: break-word;
     overflow-wrap: break-word;
     user-select: all;
-    /* Add padding here to space the text from the border */
-    padding: 0px;
 }
 .buttons {
     display: grid;
