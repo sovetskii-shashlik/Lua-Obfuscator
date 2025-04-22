@@ -1,0 +1,13 @@
+{
+  "appId": "com.yourname.luaobfuscator",
+  "appName": "Lua Obfuscator",
+  "webDir": "dist",
+  "plugins": {
+    "Filesystem": {
+      "androidPermissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    }
+  }
+}
