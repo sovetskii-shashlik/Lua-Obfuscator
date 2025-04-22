@@ -7,7 +7,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
+    <div class="top-buttons">
+        <button class="save-button" id="saveButton">💾</button>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+
     <h1>Lua-обфускатор</h1>
     <textarea id="input" placeholder="Введи Lua-код..."></textarea>
 
@@ -35,6 +39,26 @@
     <div class="status" id="statusV2"></div>
     <button onclick="startMultiLayerObfuscationV3()" class="multi-obfuscate-btn-v3" id="multiObfuscateBtnV3">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3</button>
     <div class="status" id="statusV3"></div>
+
+    <div id="saveFileDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-box">
+            <input type="text" id="fileNameInput" placeholder="Имя файла...">
+            <div class="dialog-buttons">
+                <button id="saveFileOkBtn">OK</button>
+                <button id="saveFileCancelBtn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="formatDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-box">
+            <div class="dialog-message">Выберите формат файла:</div>
+            <div class="dialog-buttons">
+                <button id="saveLuaBtn" class="green-button">Lua</button>
+                <button id="saveTextBtn" class="green-button">Текстовый</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
