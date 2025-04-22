@@ -1,19 +1,23 @@
-// ========== Глобальные переменные ========== //
-let currentObfuscationStep = 0;
-const obfuscationMethods = [
-    'ascii', 'hex', 'unicode', 'number', 'base3', 
-    'binary', 'base4', 'base5', 'octal', 'interleave', 
-    'prime', 'offset'
-];
+// ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========== //
+const { Filesystem, Directory } = capacitorPlugins.Filesystem;
+let isNativePlatform = false;
 
-// ========== Инициализация ========== //
-document.addEventListener('DOMContentLoaded', function() {
+// ========== ИНИЦИАЛИЗАЦИЯ ========== //
+document.addEventListener('DOMContentLoaded', async function() {
+    // Проверяем, работает ли Capacitor
+    if (typeof capacitorPlugins !== 'undefined') {
+        isNativePlatform = true;
+        console.log("Работаем в нативном окружении (Capacitor)");
+    } else {
+        console.log("Работаем в браузере");
+    }
+
     initTheme();
     initButtons();
     initDialogs();
 });
 
-// ========== Тема ========== //
+// ========== ТЕМА ========== //
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     if (localStorage.getItem('darkTheme') === 'true') {
@@ -29,7 +33,7 @@ function initTheme() {
     });
 }
 
-// ========== Кнопки ========== //
+// ========== КНОПКИ ========== //
 function initButtons() {
     // Кнопки обфускации
     document.querySelectorAll('.buttons button').forEach(btn => {
@@ -54,7 +58,7 @@ function initButtons() {
     document.getElementById('saveButton').addEventListener('click', startFileSaveProcess);
 }
 
-// ========== Диалоги ========== //
+// ========== ДИАЛОГИ ========== //
 function initDialogs() {
     // Диалог имени файла
     document.getElementById('saveFileOkBtn').addEventListener('click', function() {
@@ -80,8 +84,8 @@ function initDialogs() {
     });
 }
 
-// ========== Сохранение файла ========== //
-function startFileSaveProcess() {
+// ========== СОХРАНЕНИЕ ФАЙЛА ========== //
+async function startFileSaveProcess() {
     const content = document.getElementById("output").textContent.trim();
     if (!content) {
         showAlert("Нет данных для сохранения!");
@@ -94,89 +98,42 @@ function startFileSaveProcess() {
 
 async function saveFile(filename) {
     const content = document.getElementById("output").textContent;
-    const extension = filename.split('.').pop();
-    const mimeType = extension === 'lua' ? 'text/x-lua' : 'text/plain';
-
+    
     try {
-        // 1. Современные браузеры
-        if ('showSaveFilePicker' in window) {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: filename,
-                types: [{
-                    description: `${extension.toUpperCase()} Files`,
-                    accept: { [mimeType]: [`.${extension}`] },
-                }],
+        if (isNativePlatform) {
+            // Используем Capacitor Filesystem API
+            await Filesystem.writeFile({
+                path: `Download/${filename}`,
+                data: content,
+                directory: Directory.ExternalStorage,
+                recursive: true
             });
             
-            const writable = await handle.createWritable();
-            await writable.write(content);
-            await writable.close();
-            showAlert(`Файл сохранен как ${handle.name}`);
-            return;
-        }
-
-        // 2. Cordova/PhoneGap
-        if (window.cordova) {
-            await new Promise((resolve, reject) => {
-                window.resolveLocalFileSystemURL(
-                    cordova.file.externalRootDirectory,
-                    dir => {
-                        dir.getFile(filename, {create: true}, fileEntry => {
-                            fileEntry.createWriter(writer => {
-                                writer.onwriteend = () => {
-                                    showAlert(`Файл сохранен в: ${fileEntry.nativeURL}`);
-                                    resolve();
-                                };
-                                writer.write(content);
-                            }, reject);
-                        }, reject);
-                    },
-                    reject
-                );
-            });
-            return;
-        }
-
-        // 3. Electron
-        if (typeof process !== 'undefined' && process.versions.electron) {
-            const { dialog } = require('electron').remote;
-            const { writeFileSync } = require('fs');
+            showAlert(`Файл сохранен в /storage/emulated/0/Download/${filename}`);
+        } else {
+            // Fallback для браузера
+            const blob = new Blob([content], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
             
-            const result = await dialog.showSaveDialog({
-                defaultPath: filename,
-                filters: [
-                    { name: `${extension.toUpperCase()} Files`, extensions: [extension] }
-                ]
-            });
-            
-            if (!result.canceled) {
-                writeFileSync(result.filePath, content);
-                showAlert(`Файл сохранен в: ${result.filePath}`);
-                return;
-            }
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAlert(`Файл ${filename} сохранен в Загрузки`);
+            }, 100);
         }
-
-        // 4. Fallback для старых браузеров
-        const blob = new Blob([content], {type: mimeType});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showAlert(`Файл ${filename} сохранен`);
-        }, 100);
-
     } catch (error) {
         console.error("Ошибка сохранения:", error);
-        showAlert("Не удалось сохранить файл. Скопируйте текст вручную.");
+        showAlert("Ошибка сохранения! Проверьте консоль для деталей.");
     }
 }
 
-// ========== Обфускация ========== //
+// ========== ОБФУСКАЦИЯ (полные функции без сокращений) ========== //
 function obfuscate(method, inputText) {
     const input = inputText || document.getElementById("input").value.trim();
     if (!input) {
@@ -304,7 +261,7 @@ function obfuscate(method, inputText) {
     return output;
 }
 
-// ========== Многослойная обфускация ========== //
+// ========== МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ ========== //
 function startMultiLayerObfuscation() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -436,7 +393,7 @@ function startMultiLayerObfuscationV3() {
     processNextStep();
 }
 
-// ========== Деобфускация ========== //
+// ========== ДЕОБФУСКАЦИЯ ========== //
 function deobfuscate() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
@@ -561,7 +518,7 @@ function deobfuscate() {
     document.getElementById("output").textContent = output || "Не удалось деобфусцировать код";
 }
 
-// ========== Вспомогательные функции ========== //
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========== //
 function showDialog(id) {
     document.getElementById(id).style.display = 'flex';
 }
