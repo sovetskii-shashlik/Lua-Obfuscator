@@ -28,22 +28,23 @@ function obfuscate(method, inputText) {
     const input = inputText || document.getElementById("input").value.trim();
     const outputElement = document.getElementById("output"); // Get output element
 
+    // При пустом вводе просто алерт и очистка вывода
     if (!input && !inputText) {
         alert("Введи Lua-код сначала!");
-         // Reset output to placeholder state if empty input
-         outputElement.textContent = 'Здесь появится обфусцированный код...'; // Устанавливаем текст
-         outputElement.classList.add('placeholder'); // Добавляем класс
-         outputElement.style.borderColor = "#4CAF50"; // Reset border color
+        outputElement.textContent = ''; // Очищаем вывод
+        outputElement.style.borderColor = "#4CAF50"; // Сброс цвета рамки
         return "";
     }
 
-    if (!inputText) { // Clear output and statuses only if called by user
-        outputElement.textContent = 'Генерация...'; // Устанавливаем текст при генерации
-        outputElement.classList.remove('placeholder'); // Удаляем placeholder класс
-        outputElement.style.borderColor = "#4CAF50"; // Reset border color for processing
+    if (!inputText) { // Clear output and statuses only if called by user button
+        outputElement.textContent = 'Генерация...'; // Статус генерации
+        outputElement.style.borderColor = "#4CAF50"; // Цвет рамки при обработке
         document.getElementById("status").textContent = '';
         document.getElementById("statusV2").textContent = '';
         document.getElementById("statusV3").textContent = '';
+    } else {
+        // Если вызывается из многослойной обфускации, очищать статус только при первом шаге v1
+        // Многослойные функции сами управляют своим статусом
     }
 
     let output = "";
@@ -56,88 +57,89 @@ function obfuscate(method, inputText) {
         else if (method === "binary") { let b = ""; for (let i = 0; i < input.length; i++) b += input.charCodeAt(i).toString(2).padStart(8, '0'); output = `loadstring((function() local s="" for c in ("${b}"):gmatch("%d%d%d%d%d%d%d%d") do s=s..string.char(tonumber(c,2)) end return s end)())()`; }
         else if (method === "base4") { let b = []; for (let i = 0; i < input.length; i++) b.push(input.charCodeAt(i).toString(4).padStart(4, '0')); output = `loadstring((function() local s="" for t in ("${b.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,4)) end return s end)())()`; }
         else if (method === "base5") { let b = []; for (let i = 0; i < input.length; i++) b.push(input.charCodeAt(i).toString(5).padStart(4, '0')); output = `loadstring((function() local s="" for t in ("${b.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,5)) end return s end)())()`; }
-        else if (method === "octal") { let o = []; for (let i = 0; i < input.length; i++) o.push(input.charCodeAt(i).toString(8).padStart(3, '0')); output = `loadstring((function() local s="" for t in ("${o.join('')}"):gmatch("%d%d%d") do s=s..string.char(tonumber(t,8)) end return s end)())()`; }
+        // Семеричная (Base 7) обфускация вместо восьмеричной
+        else if (method === "octal") { // Название метода осталось 'octal', но логика изменена на Base 7
+             let o = [];
+             for (let i = 0; i < input.length; i++) {
+                 // Преобразуем код символа в строку Base 7, дополняем нулями до 3 цифр (т.к. 255 в Base 7 = 513)
+                 o.push(input.charCodeAt(i).toString(7).padStart(3, '0'));
+             }
+             // Lua-код для декодирования: разбивает строку на чанки по 3 цифры и преобразует в Base 7
+             output = `loadstring((function() local s="" for t in ("${o.join('')}"):gmatch("%d%d%d") do s=s..string.char(tonumber(t,7)) end return s end)())()`;
+        }
         else if (method === "interleave") { let p=[[],[]]; for(let i=0;i<input.length;i++)p[i%2].push(input.charCodeAt(i)); output = `loadstring((function(a,b)local s=''for i=1,math.max(#a,#b)do if a[i]then s=s..string.char(a[i])end if b[i]then s=s..string.char(b[i])end end return s end)({${p[0].join(',')}},{${p[1].join(',')}}))()`; }
         else if (method === "prime") { const pr=[2,3,5,7,11,13,17,19,23,29]; let t=[]; for(let i=0;i<input.length;i++){const p=pr[i%pr.length];t.push(input.charCodeAt(i)*p);t.push(p);} output = `loadstring((function(t)local s=''for i=1,#t,2 do s=s..string.char(t[i]//t[i+1])end return s end)({${t.join(',')}}))()`; }
         else if (method === "offset") { const of=5; let t=[]; for(let i=0;i<input.length;i++)t.push(input.charCodeAt(i)+of); output = `loadstring(string.char(${t.join(',')}):gsub('.',function(c)return string.char(c:byte()-${of})end))()`; }
         else if (method === "multiply") { const mu=2; let t=[]; for(let i=0;i<input.length;i++)t.push(input.charCodeAt(i)*mu); output = `loadstring(string.char(${t.join(',')}):gsub('.',function(c)return string.char(c:byte()//${mu})end))()`; }
 
-        // --- Fixed Random Obfuscation with Large Range ---
+        // --- Random Obfuscation with Large Range (Logic unchanged) ---
         else if (method === "random_offset") {
-             // Use the requested large random offset range (1000-10000)
              const ov = getRandomInt(1000, 10000);
              let t = [];
              for (let i = 0; i < input.length; i++) {
-                 // Calculate the offsetted code in JS
                  let offsettedCode = input.charCodeAt(i) + ov;
-                 // Store the *offsetted* code in the array
                  t.push(offsettedCode);
              }
-             // Modified Lua structure: pass the array of offsetted codes and the offset value.
-             // The Lua function iterates the array and subtracts the offset *before* calling string.char.
              output = `loadstring((function(codes, offset) local s = ''; for i = 1, #codes do s = s .. string.char(codes[i] - offset) end return s end)({${t.join(',')}}, ${ov}))()`;
         }
         else if (method === "random_multiply") {
-             // Use the requested large random multiplier range (1000-10000)
              let mv;
-             // Ensure multiplier is within range and not 0 or 1 (getRandomInt(1000, 10000) handles this)
              do { mv = getRandomInt(1000, 10000); } while (mv === 0 || mv === 1);
-
              let t = [];
              for (let i = 0; i < input.length; i++) {
-                  // Calculate the multiplied code in JS
-                 let multipliedCode = input.charCodeAt(i) * mv;
-                 // Store the *multiplied* code in the array
+                  let multipliedCode = input.charCodeAt(i) * mv;
                  t.push(multipliedCode);
              }
-             // Modified Lua structure: pass the array of multiplied codes and the multiplier value.
-             // The Lua function iterates the array and integer divides by the multiplier *before* calling string.char.
              output = `loadstring((function(codes, multiplier) local s = ''; for i = 1, #codes do s = s .. string.char(math.floor(codes[i] / multiplier)) end return s end)({${t.join(',')}}, ${mv}))()`;
         }
-        // --- End Fixed Random Obfuscation ---
+        // --- End Random Obfuscation ---
 
-        else { console.warn("Unknown method:", method); output = `--[[ Unknown Method: ${method} ]]`; }
+        else { console.warn("Unknown method:", method); output = `--[[ Неизвестный метод: ${method} ]]`; }
     } catch (error) {
          console.error(`Error during ${method} obfuscation:`, error);
-         output = `--[[ Ошибка (${method}): ${error.message} ]]`;
-         if (!inputText) {
-             outputElement.textContent = output;
-             outputElement.classList.remove('placeholder'); // Remove placeholder on error
-             outputElement.style.borderColor = "#ff9800"; // Error color
+         output = `--[[ Ошибка обфускации (${method}): ${error.message} ]]`;
+         // В случае ошибки обфускации, показываем сообщение в output
+         if (!inputText) { // Если это не шаг многослойной обфускации
+            outputElement.textContent = output;
+            outputElement.style.borderColor = "#ff9800"; // Цвет рамки при ошибке
          }
-         return ""; // Return empty string on error for multi-layer
+         return ""; // Возвращаем пустую строку при ошибке для многослойной обфускации
     }
 
+    // Только обновляем output, если это не шаг многослойной обфускации
      if (!inputText) {
-        // Only update the output element if this wasn't a multi-layer step
         outputElement.textContent = output;
-        // Don't remove placeholder here, it should be added by deobfuscate or left empty
-        // outputElement.classList.remove('placeholder'); // Removed this line
-        outputElement.style.borderColor = "#4CAF50"; // Success color
+        outputElement.style.borderColor = "#4CAF50"; // Цвет рамки при успехе
     }
-    return output; // Return the generated code for multi-layer steps
+    return output; // Возвращаем сгенерированный код для многослойной обфускации
 }
 
 // --- Multi-Layer Functions (Logic unchanged, relies on updated obfuscate) ---
- function startMultiLayerObfuscation() {
+// Многослойные функции сами управляют статусами
+function startMultiLayerObfuscation() {
     const input = document.getElementById("input").value.trim();
     const outputElement = document.getElementById("output");
     if (!input) { alert("Введи Lua-код сначала!"); return; }
 
     outputElement.textContent = 'Запуск многослойной обфускации v1...';
-    outputElement.classList.remove('placeholder');
     outputElement.style.borderColor = "#4CAF50";
 
     const btn = document.getElementById("multiObfuscateBtn");
     const status = document.getElementById("status");
-    document.getElementById("statusV2").textContent = ''; document.getElementById("statusV3").textContent = '';
+    document.getElementById("statusV2").textContent = ''; document.getElementById("statusV3").textContent = ''; // Очищаем статусы других версий
 
     btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v1..."; status.textContent = "Запуск v1...";
     let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "unicode", name: "Unicode" }, { method: "base3", name: "Base3" } ]; let step = 0;
     function processNextStep() {
         if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1"; status.textContent = "Обфускация v1 завершена!"; return; }
         const currentMethod = steps[step]; status.textContent = `v1 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
-        if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) { status.textContent = `v1 Ошибка Шаг ${step + 1}. Прервано.`; btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1"; return; }
+        if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) { // Проверяем на пустую строку или комментарий ошибки
+            status.textContent = `v1 Ошибка на шаге ${step + 1}. Прервано.`;
+            btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1";
+            // Сообщение об ошибке уже должно быть в outputElement из функции obfuscate
+            outputElement.style.borderColor = "#ff9800";
+            return;
+        }
         currentCode = obfuscatedStep; outputElement.textContent = currentCode; outputElement.style.borderColor = "#4CAF50"; step++; setTimeout(processNextStep, 500);
     } processNextStep();
 }
@@ -147,18 +149,22 @@ function startMultiLayerObfuscationV2() {
      if (!input) { alert("Введи Lua-код сначала!"); return; }
 
      outputElement.textContent = 'Запуск многослойной обфускации v2...';
-     outputElement.classList.remove('placeholder');
      outputElement.style.borderColor = "#4CAF50";
 
      const btn = document.getElementById("multiObfuscateBtnV2"); const status = document.getElementById("statusV2");
-     document.getElementById("status").textContent = ''; document.getElementById("statusV3").textContent = '';
+     document.getElementById("status").textContent = ''; document.getElementById("statusV3").textContent = ''; // Очищаем статусы других версий
 
      btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v2..."; status.textContent = "Запуск v2...";
      let currentCode = input; const steps = [ { method: "prime", name: "Простое число" }, { method: "hex", name: "HEX" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "base4", name: "Base4" } ]; let step = 0;
      function processNextStep() {
          if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2"; status.textContent = "Обфускация v2 завершена!"; return; }
          const currentMethod = steps[step]; status.textContent = `v2 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
-         if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) { status.textContent = `v2 Ошибка Шаг ${step + 1}. Прервано.`; btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2"; return; }
+         if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) {
+            status.textContent = `v2 Ошибка на шаге ${step + 1}. Прервано.`;
+            btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2";
+            outputElement.style.borderColor = "#ff9800";
+            return;
+         }
          currentCode = obfuscatedStep; outputElement.textContent = currentCode; outputElement.style.borderColor = "#4CAF50"; step++; setTimeout(processNextStep, 500);
      } processNextStep();
 }
@@ -168,21 +174,26 @@ function startMultiLayerObfuscationV3() {
      if (!input) { alert("Введи Lua-код сначала!"); return; }
 
      outputElement.textContent = 'Запуск многослойной обфускации v3...';
-     outputElement.classList.remove('placeholder');
      outputElement.style.borderColor = "#4CAF50";
 
      const btn = document.getElementById("multiObfuscateBtnV3"); const status = document.getElementById("statusV3");
-     document.getElementById("status").textContent = ''; document.getElementById("statusV2").textContent = '';
+     document.getElementById("status").textContent = ''; document.getElementById("statusV2").textContent = ''; // Очищаем статусы других версий
 
      btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v3..."; status.textContent = "Запуск v3...";
      let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "hex", name: "HEX" }, { method: "base5", name: "Base5" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "binary", name: "Binary" } ]; let step = 0;
      function processNextStep() {
          if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3"; status.textContent = "Обфускация v3 завершена!"; return; }
          const currentMethod = steps[step]; status.textContent = `v3 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
-         if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) { status.textContent = `v3 Ошибка Шаг ${step + 1}. Прервано.`; btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3"; return; }
+         if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) {
+            status.textContent = `v3 Ошибка на шаге ${step + 1}. Прервано.`;
+            btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3";
+            outputElement.style.borderColor = "#ff9800";
+            return;
+         }
          currentCode = obfuscatedStep; outputElement.textContent = currentCode; outputElement.style.borderColor = "#4CAF50"; step++; setTimeout(processNextStep, 500);
      } processNextStep();
 }
+
 
 // --- DEOBFUSCATION FUNCTION ---
 function deobfuscate() {
@@ -196,15 +207,13 @@ function deobfuscate() {
 
     if (!input) {
         alert("Введите обфусцированный код сначала!");
-        outputElement.textContent = 'Введите обфусцированный код.'; // Устанавливаем текст ошибки/подсказки
-        outputElement.classList.add('placeholder'); // Добавляем placeholder класс
-        outputElement.style.borderColor = "#ff9800";
+        outputElement.textContent = ''; // Очищаем вывод при пустом вводе
+        outputElement.style.borderColor = "#4CAF50"; // Сброс цвета рамки
         return;
     }
 
-    outputElement.textContent = 'Деобфускация...';
-    outputElement.classList.remove('placeholder'); // Удаляем placeholder класс при деобфускации
-    outputElement.style.borderColor = "#2196F3"; // Deobfuscation color
+    outputElement.textContent = 'Деобфускация...'; // Статус деобфускации
+    outputElement.style.borderColor = "#2196F3"; // Цвет рамки при обработке
 
     let output = "";
     let deobfuscated = false;
@@ -222,26 +231,25 @@ function deobfuscate() {
 
               if (value > 0 && !isNaN(value)) {
                    codes.forEach(code => {
-                                if (!isNaN(code)) {
-                                    let originalCode;
-                                    if (type === 'offset') {
-                                        originalCode = code - value; // Subtract offset
-                                    } else { // type === 'multiplier'
-                                         if (value === 0) throw new Error("Делитель 0 при деобфускации."); // Should not happen with range 1000-10000
-                                        originalCode = Math.floor(code / value); // Integer divide by multiplier
-                                    }
-                                     // Basic validation: check if result is within typical byte range
-                                     if (originalCode >= 0 && originalCode <= 255) {
-                                          output += String.fromCharCode(originalCode);
-                                     } else {
-                                          // If result is outside range, something is wrong (maybe not this type?)
-                                          console.warn(`Deobfuscation resulted in code ${originalCode} for input code ${code} with value ${value}.`);
-                                           throw new Error(`Деобфускация ${type}: Получен код вне диапазона 0-255 (${originalCode}).`);
-                                     }
-                                } else {
-                                     throw new Error(`Деобфускация ${type}: Неверный код в массиве (${code}).`);
-                                }
-                           });
+                        if (!isNaN(code)) {
+                            let originalCode;
+                            if (type === 'offset') {
+                                originalCode = code - value; // Subtract offset
+                            } else { // type === 'multiplier'
+                                 if (value === 0) throw new Error("Делитель 0 при деобфускации."); // Should not happen with range 1000-10000
+                                originalCode = Math.floor(code / value); // Integer divide by multiplier
+                            }
+                             // Basic validation: check if result is within typical byte range
+                             if (originalCode >= 0 && originalCode <= 255) {
+                                  output += String.fromCharCode(originalCode);
+                             } else {
+                                  console.warn(`Деобфускация ${type}: Получен код вне диапазона 0-255 (${originalCode}).`);
+                                  throw new Error(`Деобфускация ${type}: Получен код вне диапазона 0-255 (${originalCode}).`);
+                             }
+                        } else {
+                             throw new Error(`Деобфускация ${type}: Неверный код в массиве (${code}).`);
+                        }
+                   });
                    deobfuscated = true; // Mark as deobfuscated if successful
               } else {
                    // Value was not > 0 or NaN, let other patterns try
@@ -258,8 +266,7 @@ function deobfuscate() {
                   const codesStr = charCodeMatch[1].trim(); const codes = (codesStr === '') ? [] : codesStr.split(',').map(s => Number(s.trim()));
                   let value = 0; let isOffset = false;
                   if (gsubFuncMatch[1] !== undefined) { value = parseInt(gsubFuncMatch[1]); isOffset = true; }
-                  // ИСПРАВЛЕНИЕ: Было gsubFunc[2], стало gsubFuncMatch[2]
-                  else if (gsubFuncMatch[2] !== undefined) { value = parseInt(gsubFuncMatch[2]); isOffset = false; }
+                  else if (gsubFuncMatch[2] !== undefined) { value = parseInt(gsubFuncMatch[2]); isOffset = false; } // ИСПРАВЛЕНИЕ УЖЕ БЫЛО ВНЕСЕНО В ПРОШЛЫЙ РАЗ
                   else { /* Pattern matched gsub but not the core logic, let other patterns try */ }
 
                   if (value > 0) { // Only proceed if a valid value was found for the *old* pattern
@@ -273,7 +280,6 @@ function deobfuscate() {
                                  if (originalCode >= 0 && originalCode <= 255) {
                                       output += String.fromCharCode(originalCode);
                                  } else {
-                                     // If we hit here, the old pattern with a large value likely failed due to byte limits
                                       console.warn(`Деобфускация (старый формат): Получен код вне диапазона 0-255 (${originalCode}). Вероятно, использовался слишком большой рандом.`);
                                       throw new Error(`Деобфускация (старый формат): Получен код вне диапазона 0-255 (${originalCode}). Неверный тип обфускации или данные повреждены.`);
                                  }
@@ -286,7 +292,15 @@ function deobfuscate() {
 
 
                  // Continue with other standard deobfuscation patterns if not already deobfuscated
-                 const baseMethods = [ {b:3, p:/tonumber\(t,3\)/, v:/^[012]+$/, c:6}, {b:2, p:/tonumber\(b,2\)/, v:/^[01]+$/, c:8}, {b:4, p:/tonumber\(t,4\)/, v:/^[0-3]+$/, c:4}, {b:5, p:/tonumber\(t,5\)/, v:/^[0-4]+$/, c:4}, {b:8, p:/tonumber\(t,8\)/, v:/^[0-7]+$/, c:3} ];
+                 // ОБНОВЛЕНИЕ: Удалена логика для Base 8, добавлена для Base 7 (Octal)
+                 const baseMethods = [
+                     {b:3, p:/tonumber\(t,3\)/, v:/^[012]+$/, c:6},
+                     {b:2, p:/tonumber\(b,2\)/, v:/^[01]+$/, c:8},
+                     {b:4, p:/tonumber\(t,4\)/, v:/^[0-3]+$/, c:4},
+                     {b:5, p:/tonumber\(t,5\)/, v:/^[0-4]+$/, c:4},
+                     {b:7, p:/tonumber\(t,7\)/, v:/^[0-6]+$/, c:3} // Добавлена логика для Base 7
+                     // Логика для Base 8 {b:8, p:/tonumber\(t,8\)/, v:/^[0-7]+$/, c:3} УДАЛЕНА
+                 ];
                  for (const bm of baseMethods) {
                       if (!deobfuscated && bm.p.test(input) && input.includes(":gmatch")) {
                           const strMatch = input.match(/"([0-9]*)"/);
@@ -295,17 +309,18 @@ function deobfuscate() {
                           if (strMatch && strMatch[1] !== undefined) {
                                const baseStr = strMatch[1];
                                if (baseStr === "") { output = ""; deobfuscated = true; break;} // Пустая строка
+                               // Проверяем, что строка содержит только допустимые символы для данной базы и имеет правильную длину
                                if (bm.v.test(baseStr) && chunkSize > 0 && baseStr.length % chunkSize === 0) {
                                    for (let i = 0; i < baseStr.length; i += chunkSize) {
                                        const charCode = parseInt(baseStr.substr(i, chunkSize), bm.b);
                                         if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) { // Validate code range
                                             output += String.fromCharCode(charCode);
                                         } else {
-                                             throw new Error(`Деобфускация Base${bm.b}: Неверный или внедиапазонный код (${charCode}).`);
+                                             throw new Error(`Деобфускация Base${bm.b}: Неверный или внедиапазонный код (${charCode}) из чанка "${baseStr.substr(i, chunkSize)}".`);
                                         }
                                    }
                                    deobfuscated = true;
-                                   break;
+                                   break; // Прерываем цикл по baseMethods, как только нашли и деобфусцировали
                                }
                           }
                       }
@@ -338,7 +353,7 @@ function deobfuscate() {
                  }
                  // string.char(...)
                  if (!deobfuscated && input.includes("string.char(") && input.includes("loadstring")) {
-                     const m=input.match(/string\.char\(([\d,\s]*)\)/);
+                     const m=input.match(/loadstring\s*\(\s*string\.char\(([\d,\s]*)\)\)\(\)/s); // Более точный регекс
                      if(m&&(m[1]!==undefined)){
                          const s=m[1].trim();
                          if(s===''){
@@ -404,40 +419,53 @@ function deobfuscate() {
                  if (!deobfuscated) {
                      const m = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s);
                      if (m && m[1] !== undefined) {
-                         output = m[1].replace(/\\"/g,'"').replace(/\\'/g,"'").replace(/\\\\/g,"\\").replace(/\\n/g,"\n").replace(/\\t/g,"\t").replace(/\\r/g,"\r").replace(/\\f/g,"\f").replace(/\\v/g,"\v"); // Added more common escapes
-                         console.warn("Fallback extraction from basic loadstring.");
-                         deobfuscated = true; // Mark as deobfuscated by fallback
-                         outputElement.style.borderColor = "#ff9800"; // Indicate it was just extracted, potentially not fully deobfuscated
+                         // Декодируем стандартные Lua escape-последовательности
+                         output = m[1].replace(/\\"/g,'"')
+                                     .replace(/\\'/g,"'")
+                                     .replace(/\\\\/g,"\\")
+                                     .replace(/\\n/g,"\n")
+                                     .replace(/\\t/g,"\t")
+                                     .replace(/\\r/g,"\r")
+                                     .replace(/\\f/g,"\f")
+                                     .replace(/\\v/g,"\v")
+                                     // Возможно, здесь нужна более сложная логика для escape-последовательностей чисел (\d{1,3}, \xNN, \u{NNNN})
+                                     // Но базовый парсинг строк может быть сложным без полного Lua-парсера.
+                                     // Пока оставим только стандартные символьные.
+                                     ;
+                         console.warn("Fallback: извлечена строка из loadstring. Деобфускация может быть неполной.");
+                         // Не отмечаем как deobfuscated = true, чтобы в конце показать сообщение "Не удалось распознать"
+                         // или можно отметить и добавить примечание к output.
+                         // Давайте просто вернем результат, но без пометки deobfuscated.
+                         // Fallback не гарантирует полной деобфускации, это просто попытка достать хоть что-то читаемое.
+                         outputElement.style.borderColor = "#ff9800"; // Indicate potential issue
+                         // Чтобы избежать попадания в "Не удалось распознать", если что-то извлекли:
+                         if (output !== "") deobfuscated = true; // Если хоть что-то достали, считаем частично деобфусцированным
                      }
                  }
 
 
-                 // If after all attempts (including fallback) we still have no output and it wasn't marked deobfuscated,
-                 // or if deobfuscated was true but output is empty (e.g. empty input code), handle final status.
-                 if (!deobfuscated || output === "") {
-                     if (input.trim() === "") {
-                          output = 'Введите обфусцированный код.';
-                          outputElement.classList.add('placeholder');
-                          outputElement.style.borderColor = "#4CAF50"; // Reset border for empty state
-                     } else if (!deobfuscated){
-                          output = "Не удалось распознать тип обфускации.";
-                          outputElement.style.borderColor = "#ff9800"; // Error color
-                     } else {
-                         // Deobfuscated but output is empty - means input was likely empty code like "" or loadstring("")()
-                         output = "Код деобфусцирован, но результат пуст.";
-                         outputElement.style.borderColor = "#4CAF50";
-                     }
+                 // Финальная проверка результата
+                 if (!deobfuscated) {
+                      // Если ни один паттерн не сработал, включая fallback (или fallback извлек пустую строку)
+                      output = "Не удалось распознать тип обфускации.";
+                      outputElement.style.borderColor = "#ff9800"; // Цвет ошибки
+                 } else if (output === "") {
+                     // Если деобфускация прошла успешно (deobfuscated=true), но результат пустой строкой
+                     output = "Код деобфусцирован, но результат пуст (возможно, был пустой код).";
+                     outputElement.style.borderColor = "#4CAF50"; // Цвет успеха, но с пояснением
                  } else {
-                      outputElement.style.borderColor = "#4CAF50"; // Success color if something was deobfuscated and not empty
+                      // Успешная деобфускация с непустым результатом
+                      // Цвет рамки уже установлен ранее
+                      outputElement.style.borderColor = "#4CAF50"; // Цвет успеха
                  }
 
             } catch (e) {
                  console.error("Deobfuscation error:", e);
                  output = `Ошибка деобфускации: ${e.message}`;
-                 outputElement.classList.remove('placeholder'); // Remove placeholder on error
-                 outputElement.style.borderColor = "#ff9800"; // Error color
+                 outputElement.style.borderColor = "#ff9800"; // Цвет рамки при ошибке
             }
             outputElement.textContent = output;
+            // Плейсхолдер больше не используется, текст либо результат, либо сообщение об ошибке/статус
         }
 
         // --- Copy to Clipboard ---
@@ -445,9 +473,10 @@ function deobfuscate() {
             const output = document.getElementById("output");
             const text = output.textContent;
 
-            // Check against placeholder and processing/error texts
-             const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код.', 'Не удалось распознать тип обфускации.', 'Ошибка деобфускации:']; // Add placeholder text
-             if (!text || output.classList.contains('placeholder') || excludedTexts.some(t => text.startsWith(t))) {
+            // Исключаем копирование служебных текстов
+             const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код сначала!', 'Не удалось распознать тип обфускации.', 'Ошибка обфускации', 'Ошибка деобфускации'];
+             // Проверяем, что текст не пустой и не начинается с одного из исключенных префиксов
+             if (!text || excludedTexts.some(prefix => text.startsWith(prefix))) {
                  alert("Нет кода для копирования.");
                  return;
              }
@@ -498,9 +527,9 @@ function deobfuscate() {
 
         // --- Auto-select on click ---
         document.getElementById("output").addEventListener("click", function(event) {
-             // Do not select placeholder, processing, or error text
-            const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код.', 'Не удалось распознать тип обфускации.', 'Ошибка деобфускации:']; // Add placeholder text
-             if (this.classList.contains('placeholder') || excludedTexts.some(t => this.textContent.startsWith(t))) {
+             // Исключаем выделение служебных текстов
+            const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код сначала!', 'Не удалось распознать тип обфускации.', 'Ошибка обфускации', 'Ошибка деобфускации'];
+            if (!this.textContent || excludedTexts.some(prefix => this.textContent.startsWith(prefix))) {
                  return;
              }
              // Prevent re-selecting if already selected
@@ -518,11 +547,4 @@ function deobfuscate() {
             }
         });
 
-         // Set initial state for output element after DOM is loaded
-         document.addEventListener('DOMContentLoaded', (event) => {
-             const outputElement = document.getElementById("output");
-             outputElement.textContent = 'Здесь появится обфусцированный код...'; // Устанавливаем начальный текст
-             outputElement.classList.add('placeholder'); // Добавляем класс для стилей плейсхолдера
-         });
-
-    </script>
+         // Удален слушатель DOMContentLoaded, который устанавливал начальный плейсхолдер
