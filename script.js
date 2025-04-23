@@ -330,7 +330,7 @@ function deobfuscate() {
                   let foundValue = false;
 
                   if (gsubFuncMatch[1] !== undefined) {
-                      value = parseInt(gsubFunc[1]);
+                      value = parseInt(gsubFuncMatch[1]);
                       isOffset = true;
                       foundValue = !isNaN(value) && value > 0; // Offset should be > 0
                   }
@@ -624,15 +624,15 @@ document.getElementById("output").addEventListener("click", function(event) {
      //     return;
      // }
     try {
-         const range = document.createRange();
-         range.selectNodeContents(this); // Выделяем все содержимое
-         const selection = window.getSelection();
-         selection.removeAllRanges(); // Снимаем текущее выделение
-         selection.addRange(range); // Добавляем новое выделение
-    } catch (e) {
-         console.warn("Could not select text.", e);
-    }
-});
+                 const range = document.createRange();
+                 range.selectNodeContents(this); // Выделяем все содержимое
+                 const selection = window.getSelection();
+                 selection.removeAllRanges(); // Снимаем текущее выделение
+                 selection.addRange(range); // Добавляем новое выделение
+            } catch (e) {
+                 console.warn("Could not select text.", e);
+            }
+        });
 
- // Удален слушатель DOMContentLoaded, который устанавливал начальный плейсхолдер
+         // Удален слушатель DOMContentLoaded, который устанавливал начальный плейсхолдер
 
