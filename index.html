@@ -11,7 +11,7 @@
     <h1>Lua-обфускатор</h1>
     <textarea id="input" placeholder="Введи Lua-код..."></textarea>
 
-    <div class="buttons">
+    <div class="buttons-grid">
         <button onclick="obfuscate('ascii')">ASCII</button>
         <button onclick="obfuscate('hex')">HEX</button>
         <button onclick="obfuscate('unicode')">Unicode</button>
@@ -23,16 +23,23 @@
         <button onclick="obfuscate('octal')">Octal</button>
         <button onclick="obfuscate('interleave')">Чересполосица</button>
         <button onclick="obfuscate('prime')">Простое число</button>
-        <button onclick="obfuscate('offset')">Смещение</button>
+        <button onclick="obfuscate('offset')">Смещение (+5)</button>
+        <button onclick="obfuscate('multiply')">Умножение (x2)</button>
+        <button onclick="obfuscate('random_offset')">Смещение (Рандом)</button>
+        <button onclick="obfuscate('random_multiply')">Умножение (Рандом)</button>
     </div>
 
-    <div id="output" placeholder="Здесь появится обфусцированный код..."></div>
+    <div id="output" class="placeholder">Здесь появится обфусцированный код...</div>
+
     <button onclick="copyToClipboard()" class="copy-btn">КОПИРОВАТЬ</button>
     <button onclick="deobfuscate()" class="deobfuscate-btn">DEOBFUSCATE</button>
+
     <button onclick="startMultiLayerObfuscation()" class="multi-obfuscate-btn" id="multiObfuscateBtn">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1</button>
     <div class="status" id="status"></div>
+
     <button onclick="startMultiLayerObfuscationV2()" class="multi-obfuscate-btn-v2" id="multiObfuscateBtnV2">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2</button>
     <div class="status" id="statusV2"></div>
+
     <button onclick="startMultiLayerObfuscationV3()" class="multi-obfuscate-btn-v3" id="multiObfuscateBtnV3">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3</button>
     <div class="status" id="statusV3"></div>
 
