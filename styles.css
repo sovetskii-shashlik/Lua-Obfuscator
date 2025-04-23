@@ -21,6 +21,7 @@ body.dark-theme #output {
     border-color: #2e7d32; /* Dark theme accent */
 }
  /* Style for the output placeholder */
+/* Этот класс теперь добавляется/удаляется JavaScript'ом при необходимости */
 #output.placeholder {
     color: #aaa; /* Grey color */
     font-style: italic;
@@ -54,7 +55,7 @@ textarea {
 }
 #output {
     width: 100%;
-    min-height: 60px;
+    min-height: 60px; /* Добавлено минимальная высота */
     padding: 10px;
     font-family: monospace;
     background-color: #fff;
