@@ -1,3 +1,4 @@
+/* CSS из первого блока (без изменений) */
 body {
     font-family: Arial, sans-serif;
     max-width: 100%;
@@ -19,10 +20,6 @@ body.dark-theme textarea { /* Удален #output из этого правил�
     color: #ffffff;
     border-color: #2e7d32; /* Dark theme accent */
 }
-/* Правило для placeholder удалено */
-/* #output.placeholder { ... } */
-/* body.dark-theme #output.placeholder { ... } */
-
 h1 {
     color: #333;
     text-align: center;
@@ -32,7 +29,6 @@ h1 {
 body.dark-theme h1 {
     color: #fff;
 }
-
 textarea {
     width: 100%;
     height: 150px;
@@ -45,33 +41,14 @@ textarea {
     box-sizing: border-box;
     margin-bottom: 10px;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-#output { /* Основные стили для output */
-    width: 100%;
-    min-height: 60px; /* Добавлено минимальная высота */
-    padding: 10px;
-    font-family: monospace;
-    background-color: #fff;
-    border: 2px solid #4CAF50; /* Light theme accent */
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    user-select: all; /* Keep user-select for easy copy */
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     /* Цвет текста по умолчанию (не плейсхолдера) */
     color: #333;
 }
- body.dark-theme #output { /* Стили output для темной темы */
-     background-color: #1e1e1e;
-     color: #ffffff;
-     border-color: #2e7d32;
- }
-
+body.dark-theme #output { /* Стили output для темной темы */
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #2e7d32;
+}
 
 /* Grid for standard obfuscation buttons */
 .buttons-grid {
@@ -150,9 +127,6 @@ body.dark-theme .multi-obfuscate-btn-v3:hover { background-color: #4a148c; trans
 .multi-obfuscate-btn-v2.processing,
 .multi-obfuscate-btn-v3.processing { animation: pulse 1s infinite; }
 
- /* Removed specific colors for random buttons - they now use the base green button style */
-
-
 @keyframes pulse {
     0% { transform: scale(1) translateY(0px); }
     50% { transform: scale(1.03) translateY(-1px); }
@@ -220,3 +194,4 @@ body.dark-theme .status {
       h1 { font-size: 1.2rem; }
       #output, textarea { font-size: 12px; }
  }
+
