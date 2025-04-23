@@ -15,7 +15,7 @@ body.dark-theme {
 body.dark-theme h1 {
     color: #ffffff;
 }
-body.dark-theme textarea { /* Удален #output из этого правила */
+body.dark-theme textarea, body.dark-theme #output { /* Вот это правило из вашего исходного кода */
     background-color: #1e1e1e;
     color: #ffffff;
     border-color: #2e7d32; /* Dark theme accent */
@@ -44,11 +44,29 @@ textarea {
     /* Цвет текста по умолчанию (не плейсхолдера) */
     color: #333;
 }
-body.dark-theme #output { /* Стили output для темной темы */
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border-color: #2e7d32;
+#output { /* Основные стили для output */
+    width: 100%;
+    min-height: 60px; /* Добавлено минимальная высота */
+    padding: 10px;
+    font-family: monospace;
+    background-color: #fff;
+    border: 2px solid #4CAF50; /* Light theme accent */
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    user-select: all; /* Keep user-select for easy copy */
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    /* Цвет текста по умолчанию (не плейсхолдера) */
+    color: #333;
 }
+/* Стили output для темной темы берутся из объединенного правила выше */
+/* body.dark-theme #output { ... } */
+
 
 /* Grid for standard obfuscation buttons */
 .buttons-grid {
@@ -194,4 +212,3 @@ body.dark-theme .status {
       h1 { font-size: 1.2rem; }
       #output, textarea { font-size: 12px; }
  }
-
