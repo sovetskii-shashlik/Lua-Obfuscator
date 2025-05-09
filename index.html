@@ -55,7 +55,7 @@
             <h1>LUA URL OBFUSCATOR</h1>
             <p class="subtitle">Roblox loadstring(game:HttpGet()) encoder</p>
 
-            <label for="urlInput">ENTER GITHUB RAW URL:</label>
+            <label for="urlInput">ENTER YOUR RAW URL:</label>
             <input type="text" id="urlInput" placeholder="https://raw.githubusercontent.com/...">
 
             <button onclick="encodeUrl()">GENERATE OBFUSCATED CODE</button>
@@ -64,13 +64,14 @@
                 </div>
 
             <div class="warning">
-                <strong>WARNING:</strong> Эта кодировка предназначена толькодоя URL!.<br>
-                Кодирует все символы кроме: / = + - _ ~ :<br>
-                На некоторых эксплоитах может не работать, вдруг он слабый.
+                <strong>WARNING:</strong> Эта кодировка предназначена только для URL.<br>
+                символы которые останутся без изменений: / = + - _ ~ :<br>
+                Работоспособность скрипта является 100% если он небыл удалён.
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
