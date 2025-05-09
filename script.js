@@ -1,21 +1,19 @@
 // --- Theme toggle logic ---
 const themeToggle = document.getElementById('themeToggle');
-const urlToggleBtn = document.getElementById('urlToggleBtn'); // Get the new button
+const urlToggleBtn = document.getElementById('urlToggleBtn');
 
 themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     const isDark = document.body.classList.contains('dark-theme');
     themeToggle.textContent = isDark ? '☀️' : '🌙';
-    // Store theme preference
     localStorage.setItem('darkTheme', isDark);
 });
 
-// Apply saved theme on load
 if (localStorage.getItem('darkTheme') === 'true') {
     document.body.classList.add('dark-theme');
     themeToggle.textContent = '☀️';
 } else {
-     themeToggle.textContent = '🌙'; // Ensure correct icon on light theme load
+     themeToggle.textContent = '🌙';
 }
 
 // --- View Toggle Logic ---
@@ -27,34 +25,36 @@ urlToggleBtn.addEventListener('click', () => {
 
      if (isCodeViewVisible) {
          codeObfuscatorDiv.style.display = 'none';
-         urlObfuscatorDiv.style.display = 'block'; // Or flex/grid if needed, block is simplest
+         urlObfuscatorDiv.style.display = 'block';
          urlToggleBtn.textContent = '📄'; // Icon for code file
          urlToggleBtn.title = 'Переключить на обфускатор кода';
-         // Clear statuses when switching away from code obfuscator
+         // Clear statuses when switching away
          document.getElementById("status").textContent = '';
          document.getElementById("statusV2").textContent = '';
          document.getElementById("statusV3").textContent = '';
+         document.getElementById("output").textContent = '';
+         document.getElementById("input").value = '';
      } else {
          urlObfuscatorDiv.style.display = 'none';
          codeObfuscatorDiv.style.display = 'block';
          urlToggleBtn.textContent = '🔗'; // Icon for link
          urlToggleBtn.title = 'Переключить на URL обфускатор';
+         // Clear URL input/output when switching away
+         document.getElementById("urlInput").value = '';
+         document.getElementById("urlOutputContainer").innerHTML = '';
      }
 });
 
-// --- Code Obfuscator Functions (Original, slightly adapted) ---
+// --- Code Obfuscator Functions (Adapted for UTF-8 Bytes) ---
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    let result = Math.floor(Math.random() * (max - min + 1)) + min;
-    return result;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function obfuscate(method, inputText) {
-    // Use the input from the *code* obfuscator section
     const input = inputText || document.getElementById("input").value.trim();
-    // Use the output element from the *code* obfuscator section
     const outputElement = document.getElementById("output");
 
     if (!input && !inputText) {
@@ -67,61 +67,153 @@ function obfuscate(method, inputText) {
     if (!inputText) {
         outputElement.textContent = 'Генерация...';
         outputElement.style.borderColor = "#4CAF50";
-         // Clear statuses only when triggered by code obfuscator buttons
         document.getElementById("status").textContent = '';
         document.getElementById("statusV2").textContent = '';
         document.getElementById("statusV3").textContent = '';
     }
 
     let output = "";
+    let bytes = new Uint8Array();
     try {
-        if (method === "ascii") { let e = ""; for (let i = 0; i < input.length; i++) e += "\\" + input.charCodeAt(i); output = `loadstring("${e}")()`; }
-        else if (method === "hex") { let h = ""; for (let i = 0; i < input.length; i++) h += "\\x" + input.charCodeAt(i).toString(16).padStart(2, "0"); output = `loadstring("${h}")()`; }
-        else if (method === "unicode") { let u = ""; for (let i = 0; i < input.length; i++) u += "\\u{" + input.charCodeAt(i).toString(16).padStart(4, "0") + "}"; output = `loadstring("${u}")()`; }
-        else if (method === "number") { let n = []; for (let i = 0; i < input.length; i++) n.push(input.charCodeAt(i)); output = `loadstring(string.char(${n.join(",")}))()`; }
-        else if (method === "base3") { let b = []; for (let i = 0; i < input.length; i++) b.push(input.charCodeAt(i).toString(3).padStart(6, '0')); output = `loadstring((function() local s="" for t in ("${b.join('')}"):gmatch("%d%d%d%d%d%d") do s=s..string.char(tonumber(t,3)) end return s end)())()`; }
-        else if (method === "binary") { let b = ""; for (let i = 0; i < input.length; i++) b += input.charCodeAt(i).toString(2).padStart(8, '0'); output = `loadstring((function() local s="" for c in ("${b}"):gmatch("%d%d%d%d%d%d%d%d") do s=s..string.char(tonumber(c,2)) end return s end)())()`; }
-        else if (method === "base4") { let b = []; for (let i = 0; i < input.length; i++) b.push(input.charCodeAt(i).toString(4).padStart(4, '0')); output = `loadstring((function() local s="" for t in ("${b.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,4)) end return s end)())()`; }
-        else if (method === "base5") { let b = []; for (let i = 0; i < input.length; i++) b.push(input.charCodeAt(i).toString(5).padStart(4, '0')); output = `loadstring((function() local s="" for t in ("${b.join('')}"):gmatch("%d%d%d%d") do s=s..string.char(tonumber(t,5)) end return s end)())()`; }
-        else if (method === "octal") {
-             let o = [];
-             for (let i = 0; i < input.length; i++) {
-                 o.push(input.charCodeAt(i).toString(7).padStart(3, '0'));
-             }
-             output = `loadstring((function() local s="" for t in ("${o.join('')}"):gmatch("%d%d%d") do s=s..string.char(tonumber(t,7)) end return s end)())()`;
-        }
-        else if (method === "octal8") {
-             let o = [];
-             for (let i = 0; i < input.length; i++) {
-                 o.push(input.charCodeAt(i).toString(8).padStart(3, '0'));
-             }
-             output = `loadstring((function() local s="" for t in ("${o.join('')}"):gmatch("%d%d%d") do s=s..string.char(tonumber(t,8)) end return s end)())()`;
-         }
-        else if (method === "interleave") { let p=[[],[]]; for(let i=0;i<input.length;i++)p[i%2].push(input.charCodeAt(i)); output = `loadstring((function(a,b)local s=''for i=1,math.max(#a,#b)do if a[i]then s=s..string.char(a[i])end if b[i]then s=s..string.char(b[i])end end return s end)({${p[0].join(',')}},{${p[1].join(',')}}))()`; }
-        else if (method === "prime") { const pr=[2,3,5,7,11,13,17,19,23,29]; let t=[]; for(let i=0;i<input.length;i++){const p=pr[i%pr.length];t.push(input.charCodeAt(i)*p);t.push(p);} output = `loadstring((function(t)local s=''for i=1,#t,2 do s=s..string.char(t[i]//t[i+1])end return s end)({${t.join(',')}}))()`; }
-        else if (method === "offset") { const of=5; let t=[]; for(let i=0;i<input.length;i++)t.push(input.charCodeAt(i)+of); output = `loadstring(string.char(${t.join(',')}):gsub('.',function(c)return string.char(c:byte()-${of})end))()`; }
-        else if (method === "multiply") { const mu=2; let t=[]; for(let i=0;i<input.length;i++)t.push(input.charCodeAt(i)*mu); output = `loadstring(string.char(${t.join(',')}):gsub('.',function(c)return string.char(c:byte()//${mu})end))()`; }
+        const encoder = new TextEncoder();
+        bytes = encoder.encode(input); // Get UTF-8 bytes array
 
-        else if (method === "random_offset") {
-             const ov = getRandomInt(1000, 10000);
-             let t = [];
+        if (method === "ascii") {
+            let e = "";
+            for (const byte of bytes) {
+                e += "\\" + byte; // Escape each byte value (0-255)
+            }
+            // Lua loadstring interprets escapes and creates a string byte-by-byte
+            output = `loadstring("${e}")()`;
+        } else if (method === "hex") {
+            let h = "";
+            for (const byte of bytes) {
+                h += "\\x" + byte.toString(16).padStart(2, "0"); // Escape each byte as hex (00-FF)
+            }
+             // Lua loadstring interprets hex escapes and creates a string byte-by-byte
+            output = `loadstring("${h}")()`;
+        } else if (method === "unicode") {
+             // NOTE: This method encodes JS string code points (\u{}).
+             // It is NOT byte-based and might not work reliably in all Lua environments
+             // for characters outside the Basic Multilingual Plane or depending on Lua's
+             // internal string representation. Byte-based methods are preferred for robustness.
+             let u = "";
              for (let i = 0; i < input.length; i++) {
-                 let offsettedCode = input.charCodeAt(i) + ov;
-                 t.push(offsettedCode);
+                 // charCodeAt might give surrogate code units for non-BMP characters.
+                 // This might result in invalid unicode escapes in Lua.
+                 u += "\\u{" + input.charCodeAt(i).toString(16).padStart(4, "0") + "}";
              }
-             output = `loadstring((function(codes, offset) local s = ''; for i = 1, #codes do s = s .. string.char(codes[i] - offset) end return s end)({${t.join(',')}}, ${ov}))()`;
-        }
-        else if (method === "random_multiply") {
-             let mv;
-             do { mv = getRandomInt(1000, 10000); } while (mv === 0 || mv === 1);
-             let t = [];
-             for (let i = 0; i < input.length; i++) {
-                  let multipliedCode = input.charCodeAt(i) * mv;
-                 t.push(multipliedCode);
+             output = `loadstring("${u}")()`;
+        } else if (method === "number") {
+            // Pass byte values (0-255) directly to string.char in Lua
+            output = `loadstring(string.char(${Array.from(bytes).join(",")}))()`;
+        } else if (method === "base3") {
+            let b = "";
+            for (const byte of bytes) {
+                 // Pad each byte's base3 representation to 6 digits (max 255 is 22110 in base 3)
+                b += byte.toString(3).padStart(6, '0');
+            }
+            // Lua function decodes base3 chunks back to byte values, puts in a table,
+            // and uses string.char(unpack(bytes)) to form the string.
+            output = `loadstring((function() local s="" local data="${b}" local bytes = {} for i = 1, #data, 6 do table.insert(bytes, tonumber(data:sub(i, i+5), 3)) end return string.char(unpack(bytes)) end)())()`;
+        } else if (method === "binary") {
+            let b = "";
+            for (const byte of bytes) {
+                b += byte.toString(2).padStart(8, '0'); // Pad each byte's binary to 8 digits
+            }
+             // Lua function decodes binary chunks back to byte values, puts in table, unpacks.
+            output = `loadstring((function() local s="" local data="${b}" local bytes = {} for i = 1, #data, 8 do table.insert(bytes, tonumber(data:sub(i, i+7), 2)) end return string.char(unpack(bytes)) end)())()`;
+        } else if (method === "base4") {
+             let b = "";
+             for (const byte of bytes) {
+                  // Pad each byte's base4 representation to 4 digits (max 255 is 3333 in base 4)
+                 b += byte.toString(4).padStart(4, '0');
              }
-             output = `loadstring((function(codes, multiplier) local s = ''; for i = 1, #codes do s = s .. string.char(math.floor(codes[i] / multiplier)) end return s end)({${t.join(',')}}, ${mv}))()`;
-        }
+             // Lua function decodes base4 chunks back to byte values, puts in table, unpacks.
+             output = `loadstring((function() local s="" local data="${b}" local bytes = {} for i = 1, #data, 4 do table.insert(bytes, tonumber(data:sub(i, i+3), 4)) end return string.char(unpack(bytes)) end)())()`;
+        } else if (method === "base5") {
+             let b = "";
+             for (const byte of bytes) {
+                 // Pad each byte's base5 representation to 4 digits (max 255 is 2010 in base 5)
+                 b += byte.toString(5).padStart(4, '0');
+             }
+             // Lua function decodes base5 chunks back to byte values, puts in table, unpacks.
+             output = `loadstring((function() local s="" local data="${b}" local bytes = {} for i = 1, #data, 4 do table.insert(bytes, tonumber(data:sub(i, i+3), 5)) end return string.char(unpack(bytes)) end)())()`;
+        } else if (method === "octal") { // Base 7
+              let o = "";
+              for (const byte of bytes) {
+                   // Pad each byte's base7 representation to 3 digits (max 255 is 513 in base 7)
+                  o += byte.toString(7).padStart(3, '0');
+              }
+              // Lua function decodes base7 chunks back to byte values, puts in table, unpacks.
+              output = `loadstring((function() local s="" local data="${o}" local bytes = {} for i = 1, #data, 3 do table.insert(bytes, tonumber(data:sub(i, i+2), 7)) end return string.char(unpack(bytes)) end)())()`;
+         } else if (method === "octal8") { // Base 8
+              let o = "";
+              for (const byte of bytes) {
+                   // Pad each byte's base8 representation to 3 digits (max 255 is 377 in base 8)
+                  o += byte.toString(8).padStart(3, '0');
+              }
+              // Lua function decodes base8 chunks back to byte values, puts in table, unpacks.
+              output = `loadstring((function() local s="" local data="${o}" local bytes = {} for i = 1, #data, 3 do table.insert(bytes, tonumber(data:sub(i, i+2), 8)) end return string.char(unpack(bytes)) end)())()`;
+          } else if (method === "interleave") {
+              let p1 = []; // Bytes at even indices
+              let p2 = []; // Bytes at odd indices
+              for (let i = 0; i < bytes.length; i++) {
+                  if (i % 2 === 0) {
+                      p1.push(bytes[i]);
+                  } else {
+                      p2.push(bytes[i]);
+                  }
+              }
+              // Lua function interleaves byte values from two tables, puts in a new table, unpacks.
+              output = `loadstring((function(a,b)local bytes={}local maxLen=math.max(#a,#b)for i=1,maxLen do if a[i]then table.insert(bytes,a[i])end if b[i]then table.insert(bytes,b[i])end end return string.char(unpack(bytes)) end)({${p1.join(',')}},{${p2.join(',')}}))()`;
+          } else if (method === "prime") {
+               const pr = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]; // Primes
+               let t = []; // Paired values (byte * prime, prime)
+               for (let i = 0; i < bytes.length; i++) {
+                   const byte = bytes[i];
+                   const prime = pr[i % pr.length];
+                   t.push(byte * prime);
+                   t.push(prime);
+               }
+               // Lua function iterates through pairs, calculates byte value (integer division), puts in table, unpacks.
+               output = `loadstring((function(t)local bytes={}for i=1,#t,2 do table.insert(bytes, math.floor(t[i]/t[i+1]))end return string.char(unpack(bytes)) end)({${t.join(',')}}))()`;
+           } else if (method === "offset") {
+               const of = 5; // Fixed offset value
+               let t = []; // Offsetted byte values
+               for (const byte of bytes) {
+                   t.push(byte + of);
+               }
+               // Lua function receives offsetted byte values, subtracts offset, puts in table, unpacks.
+               output = `loadstring((function(codes, offset) local bytes = {}; for i = 1, #codes do table.insert(bytes, codes[i] - offset) end return string.char(unpack(bytes)) end)({${t.join(',')}}, ${of}))()`;
+           } else if (method === "multiply") {
+               const mu = 2; // Fixed multiplier value
+               let t = []; // Multiplied byte values
+               for (const byte of bytes) {
+                   t.push(byte * mu);
+               }
+               // Lua function receives multiplied byte values, performs integer division, puts in table, unpacks.
+               output = `loadstring((function(codes, multiplier) local bytes = {}; for i = 1, #codes do table.insert(bytes, math.floor(codes[i] / multiplier)) end return string.char(unpack(bytes)) end)({${t.join(',')}}, ${mu}))()`;
+           } else if (method === "random_offset") {
+                const ov = getRandomInt(1000, 10000); // Random offset value
+                let t = []; // Offsetted byte values
+                for (const byte of bytes) {
+                    t.push(byte + ov);
+                }
+                // Lua function receives offsetted byte values, subtracts offset, puts in table, unpacks.
+                output = `loadstring((function(codes, offset) local bytes = {}; for i = 1, #codes do table.insert(bytes, codes[i] - offset) end return string.char(unpack(bytes)) end)({${t.join(',')}}, ${ov}))()`;
+           } else if (method === "random_multiply") {
+                let mv;
+                do { mv = getRandomInt(1000, 10000); } while (mv === 0 || mv === 1); // Random multiplier value (not 0 or 1)
+                let t = []; // Multiplied byte values
+                for (const byte of bytes) {
+                    t.push(byte * mv);
+                }
+                // Lua function receives multiplied byte values, performs integer division, puts in table, unpacks.
+                output = `loadstring((function(codes, multiplier) local bytes = {}; for i = 1, #codes do table.insert(bytes, math.floor(codes[i] / multiplier)) end return string.char(unpack(bytes)) end)({${t.join(',')}}, ${mv}))()`;
+           }
         else { console.warn("Unknown method:", method); output = `--[[ Неизвестный метод: ${method} ]]`; }
+
     } catch (error) {
          console.error(`Error during ${method} obfuscation:`, error);
          output = `--[[ Ошибка обфускации (${method}): ${error.message} ]]`;
@@ -139,8 +231,11 @@ function obfuscate(method, inputText) {
     return output;
 }
 
-// --- Multi-Layer Functions (Call the adapted obfuscate) ---
-// These functions remain largely the same but rely on the updated obfuscate function
+// --- Multi-Layer Functions (Use the adapted obfuscate) ---
+// These functions chain the obfuscation steps. They should work correctly
+// as long as each step produces a valid Lua loadstring that reconstructs
+// the bytes, which are then fed as input to the next step.
+
 function startMultiLayerObfuscation() {
     const input = document.getElementById("input").value.trim();
     const outputElement = document.getElementById("output");
@@ -154,19 +249,47 @@ function startMultiLayerObfuscation() {
     document.getElementById("statusV2").textContent = ''; document.getElementById("statusV3").textContent = '';
 
     btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v1..."; status.textContent = "Запуск v1...";
-    let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "unicode", name: "Unicode" }, { method: "base3", name: "Base3" } ]; let step = 0;
+    // Ensure methods used here are byte-compatible for reliability
+    const steps = [
+        { method: "random_offset", name: "Смещение (Рандом)" },
+        // NOTE: Using "unicode" here might cause issues with non-ASCII
+        // depending on Lua environment and the original input characters.
+        // Consider replacing with a byte-based method like "hex" or "number".
+        { method: "hex", name: "HEX" }, // Changed from unicode to hex for byte compatibility
+        { method: "base3", name: "Base3" }
+    ];
+    let currentCode = input;
+    let step = 0;
+
     function processNextStep() {
-        if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1"; status.textContent = "Обфускация v1 завершена!"; return; }
-        const currentMethod = steps[step]; status.textContent = `v1 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
+        if (step >= steps.length) {
+            btn.disabled = false;
+            btn.classList.remove("processing");
+            btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1";
+            status.textContent = "Обфускация v1 завершена!";
+            return;
+        }
+        const currentMethod = steps[step];
+        status.textContent = `v1 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`;
+        const obfuscatedStep = obfuscate(currentMethod.method, currentCode); // Pass previous step's output as input
+
         if (obfuscatedStep === "" || obfuscatedStep.startsWith('--[[')) {
             status.textContent = `v1 Ошибка на шаге ${step + 1}. Прервано.`;
-            btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1";
+            btn.disabled = false;
+            btn.classList.remove("processing");
+            btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1";
             outputElement.style.borderColor = "#ff9800";
             return;
         }
-        currentCode = obfuscatedStep; outputElement.textContent = currentCode; outputElement.style.borderColor = "#4CAF50"; step++; setTimeout(processNextStep, 500);
-    } processNextStep();
+        currentCode = obfuscatedStep;
+        outputElement.textContent = currentCode; // Update output field after each step
+        outputElement.style.borderColor = "#4CAF50";
+        step++;
+        setTimeout(processNextStep, 500); // Small delay to see steps
+    }
+    processNextStep();
 }
+
 function startMultiLayerObfuscationV2() {
      const input = document.getElementById("input").value.trim();
      const outputElement = document.getElementById("output");
@@ -179,7 +302,14 @@ function startMultiLayerObfuscationV2() {
      document.getElementById("status").textContent = ''; document.getElementById("statusV3").textContent = '';
 
      btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v2..."; status.textContent = "Запуск v2...";
-     let currentCode = input; const steps = [ { method: "prime", name: "Простое число" }, { method: "hex", name: "HEX" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "base4", name: "Base4" } ]; let step = 0;
+     // Ensure methods used here are byte-compatible for reliability
+     const steps = [
+         { method: "prime", name: "Простое число" },
+         { method: "hex", name: "HEX" },
+         { method: "random_multiply", name: "Умножение (Рандом)" },
+         { method: "base4", name: "Base4" }
+     ];
+     let currentCode = input; let step = 0;
      function processNextStep() {
          if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2"; status.textContent = "Обфускация v2 завершена!"; return; }
          const currentMethod = steps[step]; status.textContent = `v2 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
@@ -192,6 +322,7 @@ function startMultiLayerObfuscationV2() {
          currentCode = obfuscatedStep; outputElement.textContent = currentCode; outputElement.style.borderColor = "#4CAF50"; step++; setTimeout(processNextStep, 500);
      } processNextStep();
 }
+
 function startMultiLayerObfuscationV3() {
      const input = document.getElementById("input").value.trim();
      const outputElement = document.getElementById("output");
@@ -204,7 +335,15 @@ function startMultiLayerObfuscationV3() {
      document.getElementById("status").textContent = ''; document.getElementById("statusV2").textContent = '';
 
      btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v3..."; status.textContent = "Запуск v3...";
-     let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "hex", name: "HEX" }, { method: "base5", name: "Base5" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "binary", name: "Binary" } ]; let step = 0;
+     // Ensure methods used here are byte-compatible for reliability
+     const steps = [
+         { method: "random_offset", name: "Смещение (Рандом)" },
+         { method: "hex", name: "HEX" },
+         { method: "base5", name: "Base5" },
+         { method: "random_multiply", name: "Умножение (Рандом)" },
+         { method: "binary", name: "Binary" }
+     ];
+     let currentCode = input; let step = 0;
      function processNextStep() {
          if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3"; status.textContent = "Обфускация v3 завершена!"; return; }
          const currentMethod = steps[step]; status.textContent = `v3 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
@@ -219,14 +358,11 @@ function startMultiLayerObfuscationV3() {
 }
 
 
-// --- DEOBFUSCATION FUNCTION ---
+// --- DEOBFUSCATION FUNCTION (Adapted for UTF-8 Bytes) ---
 function deobfuscate() {
-    // Use the input from the *code* obfuscator section
     const input = document.getElementById("input").value.trim();
-    // Use the output element from the *code* obfuscator section
     const outputElement = document.getElementById("output");
 
-    // Clear statuses in the code obfuscator section
     document.getElementById("status").textContent = '';
     document.getElementById("statusV2").textContent = '';
     document.getElementById("statusV3").textContent = '';
@@ -243,225 +379,330 @@ function deobfuscate() {
 
     let output = "";
     let deobfuscated = false;
+    let byteValues = null; // Use null initially, becomes an array of bytes (0-255) if successful
 
     try {
-         const newRandomMatch = input.match(/loadstring\s*\(\s*\(function\(codes,\s*(offset|multiplier)\)\s*local s = ''; for i = 1, #codes do s = s \.\. string\.char\((?:codes\[i\]\s*-\s*\1|\s*math\.floor\(codes\[i\]\s*\/\s*\2\))\) end return s end\)\(\{([\d,\s]*)\},\s*(\d+)\)\)\(\)/s);
-         if (!deobfuscated && newRandomMatch) {
-              const type = newRandomMatch[1];
-              const codesStr = newRandomMatch[3].trim();
-              const value = parseInt(newRandomMatch[4]);
-              const codes = (codesStr === '') ? [] : codesStr.split(',').map(s => Number(s.trim())).filter(n => !isNaN(n));
+         // --- Attempt to extract byte values based on obfuscation patterns ---
 
-              if (!isNaN(value) && (type === 'offset' ? value > 0 : value !== 0)) {
-                   codes.forEach(code => {
-                        if (!isNaN(code)) {
-                            let originalCode;
-                            if (type === 'offset') {
-                                originalCode = code - value;
-                            } else {
-                                 if (value === 0) throw new Error("Делитель 0 при деобфускации.");
-                                originalCode = Math.floor(code / value);
-                            }
-                             if (originalCode >= 0 && originalCode <= 255) {
-                                  output += String.fromCharCode(originalCode);
-                             } else {
-                                  console.warn(`Деобфускация ${type}: Получен код вне диапазона 0-255 (${originalCode}).`);
-                                  throw new Error(`Деобфускация ${type}: Получен код вне диапазона 0-255 (${originalCode}).`);
-                             }
-                        } else {
-                             throw new Error(`Деобфускация ${type}: Неверный код в массиве (${code}).`);
-                        }
-                   });
+         // Pattern 1: Number (loadstring(string.char(b1, b2, ...))())
+         if (!deobfuscated) {
+              const m = input.match(/loadstring\s*\(\s*string\.char\(([\d,\s]*)\)\)\(\)/s);
+              if(m && m[1] !== undefined){
+                  const s=m[1].trim();
+                  const codes = (s==='')?[]:s.split(',').map(x=>Number(x.trim())).filter(n => !isNaN(n));
+                  let tempByteValues = [];
+                  let isValid = true;
+                  codes.forEach(cd => {
+                      if(cd >= 0 && cd <= 255) {
+                           tempByteValues.push(cd);
+                      } else {
+                           console.warn(`Деобфускация string.char: Неверный байт (${cd}).`);
+                           isValid = false;
+                      }
+                  });
+                  if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
+              }
+         }
+
+         // Pattern 2: BaseN (loadstring((function() ... local data="..." ... tonumber(data:sub(...), base) ... string.char(unpack(bytes)) end)())())
+         const baseMethods = [
+             {b:3, len: 6}, // 6 digits for base 3 (0-255)
+             {b:2, len: 8}, // 8 digits for base 2 (0-255)
+             {b:4, len: 4}, // 4 digits for base 4 (0-255)
+             {b:5, len: 4}, // 4 digits for base 5 (0-255)
+             {b:7, len: 3}, // 3 digits for base 7 (0-255)
+             {b:8, len: 3}  // 3 digits for base 8 (0-255)
+         ];
+         for (const bm of baseMethods) {
+              if (!deobfuscated) {
+                   // Regex to find the pattern for BaseN (extracts the data string)
+                   const basePattern = new RegExp(`loadstring\\s*\\(\\s*\\(function\\(\\).*?local data=["']([0-9]+)["'].*?tonumber\\(data:sub\\(i,\\s*i\\+${bm.len-1}\\),\\s*${bm.b}\\).*?string\\.char\\(unpack\\(bytes\\)\\).*?end\\)\\(\\)\\)`, 's');
+                   const baseMatch = input.match(basePattern);
+
+                   if (baseMatch && baseMatch[1] !== undefined) {
+                       const baseStr = baseMatch[1]; // Extracted base-encoded string
+                       if (baseStr.length % bm.len === 0) {
+                           let tempByteValues = [];
+                           let isValid = true;
+                           for (let i = 0; i < baseStr.length; i += bm.len) {
+                               const chunk = baseStr.substr(i, bm.len);
+                               const byteValue = parseInt(chunk, bm.b); // Decode chunk to byte value
+                                if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                    tempByteValues.push(byteValue);
+                                } else {
+                                     console.warn(`Деобфускация Base${bm.b}: Неверный или внедиапазонный байт (${byteValue}) из чанка "${chunk}".`);
+                                     isValid = false;
+                                     break;
+                                }
+                           }
+                           if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
+                       }
+                   }
+              }
+         }
+
+         // Pattern 3: Interleave (loadstring((function(a,b)...string.char(unpack(bytes)) end)({p1},{p2}))())
+         if (!deobfuscated) {
+              const interleavePattern = /loadstring\s*\(\s*\(function\(a,b\).*?local bytes={}.*?table\.insert\(bytes,a\[i]\).*?table\.insert\(bytes,b\[i]\).*?return string\.char\(unpack\(bytes\)\) end\)\(\s*\{([\d,\s]*)\}\s*,\s*\{([\d,\s]*)\}\s*\)\)\(\)/s;
+              const interleaveMatch = input.match(interleavePattern);
+              if (interleaveMatch && interleaveMatch[1] !== undefined && interleaveMatch[2] !== undefined) {
+                   const s1 = interleaveMatch[1].trim();
+                   const s2 = interleaveMatch[2].trim();
+                   // Parse arrays, filtering for valid byte values
+                   const a1 = (s1 === '') ? [] : s1.split(',').map(x => Number(x.trim())).filter(n => !isNaN(n) && n >= 0 && n <= 255);
+                   const a2 = (s2 === '') ? [] : s2.split(',').map(x => Number(x.trim())).filter(n => !isNaN(n) && n >= 0 && n <= 255);
+
+                   let tempByteValues = [];
+                   for (let i = 0; i < Math.max(a1.length, a2.length); i++) {
+                       if (i < a1.length) tempByteValues.push(a1[i]);
+                       if (i < a2.length) tempByteValues.push(a2[i]);
+                   }
+                   byteValues = tempByteValues;
                    deobfuscated = true;
               }
          }
 
-         if (!deobfuscated && input.includes("math.max(#a,#b)") && input.includes("loadstring") && input.includes("string.char(a[i])")) {
-             const m=input.match(/loadstring\s*\(\s*\(function\(a,b\)\s*local s=''for i=1,math\.max\(#a,#b\)do if a\[i\]then s=s\.\.string\.char\(a\[i\]\)end if b\[i\]then s=s\.\.string\.char\(b\[i]\)end end return s end\)\(\{([\d,\s]*)\}\s*,\s*\{([\d,\s]*)\}\)\)\(\)/s);
-             if(m&&(m[1]!==undefined)&&(m[2]!==undefined)){
-                const s1=m[1].trim();
-                const s2=m[2].trim();
-                const a1=(s1==='')?[]:s1.split(',').map(x=>Number(x.trim())).filter(n => !isNaN(n));
-                const a2=(s2==='')?[]:s2.split(',').map(x=>Number(x.trim())).filter(n => !isNaN(n));
-                for(let i=0;i<Math.max(a1.length,a2.length);i++){
-                   if(i<a1.length){
-                       if(!isNaN(a1[i]) && a1[i] >= 0 && a1[i] <= 255) output+=String.fromCharCode(a1[i]);
-                       else throw new Error(`Деобфускация interleave: Неверный код в массиве a (${a1[i]}).`);
+         // Pattern 4: Prime (loadstring((function(t)...math.floor(t[i]/t[i+1])...string.char(unpack(bytes)) end)({pairs}))())
+         if (!deobfuscated) {
+              const primePattern = /loadstring\s*\(\s*\(function\(t\).*?local bytes={}.*?table\.insert\(bytes,\s*math\.floor\(t\[i\]\/\/\s*t\[i\+1\]\)\).*?return string\.char\(unpack\(bytes\)\) end\)\(\s*\{([\d,\s]*)\}\s*\)\)\(\)/s;
+              const primeMatch = input.match(primePattern);
+              if (primeMatch && primeMatch[1] !== undefined) {
+                   const s = primeMatch[1].trim();
+                   if (s === '') { byteValues = []; deobfuscated = true; } else {
+                      const n = s.split(',').map(x => Number(x.trim())).filter(v => !isNaN(v));
+                      if (n.length % 2 !== 0) throw new Error("Простое число: Нечетное число элементов.");
+                      let tempByteValues = [];
+                      let isValid = true;
+                      for (let i = 0; i < n.length; i += 2) {
+                          const v = n[i];
+                          const p = n[i + 1];
+                          if (!isNaN(v) && !isNaN(p) && p !== 0) {
+                              const byteValue = Math.floor(v / p); // Integer division
+                              if (byteValue >= 0 && byteValue <= 255) {
+                                  tempByteValues.push(byteValue);
+                              } else {
+                                   console.warn(`Деобфускация Простое число: Получен байт вне диапазона 0-255 (${byteValue}).`);
+                                   isValid = false;
+                                   break;
+                              }
+                          } else {
+                               throw new Error(`Деобфускация Простое число: Неверные числа (${v}, ${p}).`);
+                          }
+                      }
+                       if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
                    }
-                   if(i<a2.length){
-                       if(!isNaN(a2[i]) && a2[i] >= 0 && a2[i] <= 255) output+=String.fromCharCode(a2[i]);
-                       else throw new Error(`Деобфускация interleave: Неверный код в массиве b (${a2[i]}).`);
-                   }
-                }
-                deobfuscated=true;
-            }
+              }
          }
 
-         if (!deobfuscated && input.includes("t[i]//t[i+1]") && input.includes("loadstring")) {
-              const m=input.match(/loadstring\s*\(\s*\(function\(t\)\s*local s=''for i=1,#t,2 do s=s\.\.string\.char\(t\[i\]\/\/\s*t\[i\+1\]\)end return s end\)\(\{([\d,\s]*)\}\)\)\(\)/s);
-              if(m&&(m[1]!==undefined)){
-                 const s=m[1].trim();
-                 if(s===''){ output=""; } else {
-                    const n=s.split(',').map(x=>Number(x.trim())).filter(v => !isNaN(v));
-                    if(n.length%2!==0)throw new Error("Простое число: Нечетное число элементов.");
-                    for(let i=0;i<n.length;i+=2){
-                        const v=n[i];
-                        const p=n[i+1];
-                        if(!isNaN(v)&&!isNaN(p)&&p!==0){
-                            const charCode = Math.floor(v/p);
-                            if (charCode >= 0 && charCode <= 255) output+=String.fromCharCode(charCode);
-                            else throw new Error(`Простое число: Неверный деобфусцированный код (${charCode}).`);
-                        } else throw new Error(`Простое число: Неверные числа (${v}, ${p}).`);
-                    }
+         // Pattern 5: Offset/Multiply/Random Offset/Random Multiply (Function with codes, value, and unpack(bytes))
+         // loadstring((function(codes, val) local bytes = {}; for ... bytes.push(codes[i] OP val); return string.char(unpack(bytes)) end)({codes}, val))()
+          if (!deobfuscated) {
+              // Capture the operation symbol ([-/]) and the value (digits)
+              const mathOpPattern = /loadstring\s*\(\s*\(function\(codes,\s*(\w+)\)\s*local bytes = {};\s*for i = 1, #codes do\s*table\.insert\(bytes,\s*codes\[i\]\s*([+\-*/%])\s*\1\)\s*end\s*return string\.char\(unpack\(bytes\)\)\s*end\)\(\s*\{([\d,\s]*)\}\s*,\s*(\d+)\s*\)\)\(\)/s;
+              const mathOpMatch = input.match(mathOpPattern);
+
+              if (mathOpMatch) {
+                  const operation = mathOpMatch[2]; // e.g., "+", "-", "*", "/"
+                  const codesStr = mathOpMatch[3].trim();
+                  const value = parseInt(mathOpMatch[4]);
+
+                  const initialCodes = (codesStr === '') ? [] : codesStr.split(',').map(s => Number(s.trim())).filter(n => !isNaN(n));
+
+                   let tempByteValues = [];
+                   let isValid = true;
+
+                   if (!isNaN(value)) {
+                       for (let i = 0; i < initialCodes.length; ++i) {
+                           let code = initialCodes[i];
+                           let byteValue = NaN; // Use NaN to indicate not calculated/invalid
+
+                           if (operation === "-") { // Offset or Random Offset (Lua was byte + offset, JS undoes offset)
+                                byteValue = code - value;
+                           } else if (operation === "/") { // Multiply or Random Multiply (Lua was byte * multiplier, JS undoes division)
+                                if (value !== 0) byteValue = Math.floor(code / value); // Use floor as Lua uses //
+                                else { isValid = false; throw new Error("Делитель 0 при деобфускации (Умножение/Смещение)."); }
+                           } else {
+                                // If the regex matched but the operation isn't - or /, it's unexpected
+                                console.warn(`Деобфускация (Мат. операция): Неизвестная операция "${operation}".`);
+                                isValid = false;
+                                break; // Stop processing
+                           }
+
+                           // Validate the resulting byte value
+                            if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                 tempByteValues.push(byteValue);
+                            } else {
+                                 console.warn(`Деобфускация (Мат. операция): Получен байт вне диапазона 0-255 (${byteValue}) из кода ${code} и значения ${value}.`);
+                                 isValid = false;
+                                 break; // Stop processing
+                            }
+                       }
+                   } else {
+                        console.warn("Деобфускация (Мат. операция): Неверное значение для операции.");
+                        isValid = false;
+                   }
+
+                   if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
+              }
+          }
+
+
+         // Pattern 6: ASCII (loadstring("\d\d\d...\d\d\d")()) - Manual parsing for bytes
+         if (!deobfuscated) {
+              const m = input.match(/loadstring\s*\(\s*["']((?:\\\d{1,3})+)"'\s*\)\(\)/s);
+              if (m && m[1]) {
+                 const escapedString = m[1]; // Extracted escaped string
+                 let tempByteValues = [];
+                 let i = 0;
+                 let isValid = true;
+                 while (i < escapedString.length) {
+                     if (escapedString[i] === '\\' && i + 1 < escapedString.length) {
+                         const digitMatch = escapedString.substring(i + 1).match(/^\d{1,3}/); // Match 1 to 3 digits after '\'
+                         if (digitMatch) {
+                             const byteValue = parseInt(digitMatch[0], 10); // Parse as decimal byte value
+                             if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                 tempByteValues.push(byteValue);
+                                 i += 1 + digitMatch[0].length; // Move past '\' and digits
+                                 continue;
+                             }
+                         }
+                     }
+                     // If we reach here, it's not a valid \ddd escape or not a backslash
+                     console.warn(`Деобфускация ASCII: Неожиданный символ или последовательность в экранированной строке: "${escapedString.substring(i, i+5)}..."`);
+                     isValid = false; break; // Mark as invalid and stop
                  }
-                 deobfuscated=true;
-            }
+
+                 if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
+              }
          }
 
-
-         const baseMethods = [
-             {b:3, p:/tonumber\(t,3\)/, v:/^[012]+$/, c:6},
-             {b:2, p:/tonumber\(b,2\)/, v:/^[01]+$/, c:8},
-             {b:4, p:/tonumber\(t,4\)/, v:/^[0-3]+$/, c:4},
-             {b:5, p:/tonumber\(t,5\)/, v:/^[0-4]+$/, c:4},
-             {b:7, p:/tonumber\(t,7\)/, v:/^[0-6]+$/, c:3},
-             {b:8, p:/tonumber\(t,8\)/, v:/^[0-7]+$/, c:3}
-         ];
-         for (const bm of baseMethods) {
-              if (!deobfuscated && bm.p.test(input) && input.includes(":gmatch") && input.includes("loadstring")) {
-                  const strMatch = input.match(/"([0-9]*)"/);
-                   const gmatchDetailMatch = input.match(/:gmatch\("([^"]+)"\)/);
-                   const chunkSize = gmatchDetailMatch && gmatchDetailMatch[1] && gmatchDetailMatch[1].length > 0 ? gmatchDetailMatch[1].length : bm.c;
-
-                  if (strMatch && strMatch[1] !== undefined) {
-                       const baseStr = strMatch[1];
-                       if (baseStr === "") { output = ""; deobfuscated = true; break;}
-                       if (bm.v.test(baseStr) && chunkSize > 0 && baseStr.length % chunkSize === 0) {
-                           for (let i = 0; i < baseStr.length; i += chunkSize) {
-                               const chunk = baseStr.substr(i, chunkSize);
-                               const charCode = parseInt(chunk, bm.b);
-                                if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) {
-                                    output += String.fromCharCode(charCode);
-                                } else {
-                                     throw new Error(`Деобфускация Base${bm.b}: Неверный или внедиапазонный код (${charCode}) из чанка "${chunk}".`);
+         // Pattern 7: HEX (loadstring("\xHH...\xHH")()) - Manual parsing for bytes
+         if (!deobfuscated) {
+              const m = input.match(/loadstring\s*\(\s*["']((?:\\x[0-9a-fA-F]{2})+)["']\s*\)\(\)/s);
+              if (m && m[1]) {
+                  const escapedString = m[1]; // Extracted escaped string
+                  let tempByteValues = [];
+                  let i = 0;
+                  let isValid = true;
+                  while (i < escapedString.length) {
+                      // Check for \x followed by two hex digits
+                      if (escapedString[i] === '\\' && escapedString[i+1] === 'x' && i + 3 < escapedString.length) {
+                           const hex = escapedString.substring(i + 2, i + 4);
+                           if (/^[0-9a-fA-F]{2}$/.test(hex)) {
+                                const byteValue = parseInt(hex, 16); // Parse as hexadecimal byte value
+                                if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                     tempByteValues.push(byteValue);
+                                     i += 4; // Move past \xHH
+                                     continue;
                                 }
                            }
-                           deobfuscated = true;
-                           break;
-                       }
+                      }
+                      // If we reach here, it's not a valid \xHH escape or not a backslash
+                      console.warn(`Деобфускация HEX: Неожиданный символ или последовательность в экранированной строке: "${escapedString.substring(i, i+5)}..."`);
+                      isValid = false; break; // Mark as invalid and stop
                   }
+
+                  if (isValid) { byteValues = tempByteValues; deobfuscated = true; }
               }
          }
 
-         if (!deobfuscated && /loadstring\s*\(\s*["'](?:\\\d{1,3})+["']\s*\)\(\)/s.test(input) && input.includes("loadstring")) {
-            const m = input.match(/loadstring\s*\(\s*["']((?:\\\d{1,3})+)["']\s*\)/);
-            if (m && m[1]) {
-                output = m[1].replace(/\\(\d{1,3})/g, (x, d) => {
-                     const charCode = parseInt(d, 10);
-                     if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) return String.fromCharCode(charCode);
-                     throw new Error(`Деобфускация ASCII: Неверный код (${d}).`);
-                });
-                deobfuscated = true;
-            }
-         }
-         if (!deobfuscated && input.includes("\\x") && input.includes("loadstring")) {
-             const m=input.match(/loadstring\s*\(\s*["']((?:\\x[0-9a-fA-F]{2})+)["']\s*\)/);
-             if(m&&m[1]){
-                 output=m[1].replace(/\\x([0-9a-fA-F]{2})/g,(x,h)=>{
-                     const charCode = parseInt(h,16);
-                     if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) return String.fromCharCode(charCode);
-                     throw new Error(`Деobfuscation HEX: Неверный код (${h}).`);
-                 });
-                 deobfuscated = true;
-             }
-         }
-         if (!deobfuscated && input.includes("\\u{") && input.includes("loadstring")) {
+         // Pattern 8: Unicode (loadstring("\u{...}...\u{...}")()) - Keep existing logic for now
+         // This method does NOT produce a byteValues array. It uses JS string unescaping
+         // which might not perfectly match Lua's byte-level string construction for
+         // non-ASCII chars encoded this way. Using byte-based methods is more reliable.
+         if (!deobfuscated && input.includes("\\u{")) {
              let m = input.match(/loadstring\s*\(\s*["']((?:\\u\{[0-9a-fA-F]+\})+)"'\s*\)/);
-              if (!m) {
+              if (!m) { // Also check for single quotes
                  m = input.match(/loadstring\s*\(\s*[']((?:\\u\{[0-9a-fA-F]+\})+)'\s*\)/);
              }
-             if(m&&m[1]){
-                 output=m[1].replace(/\\u\{([0-9a-fA-F]+)\}/g,(x,c)=>{
-                     const charCode = parseInt(c,16);
-                     if (!isNaN(charCode)) return String.fromCharCode(charCode);
-                     throw new Error(`Деobfuscation Unicode: Неверный код (${c}).`);
-                 });
-                 deobfuscated = true;
-             }
-         }
-         if (!deobfuscated && input.includes("string.char(") && input.includes("loadstring")) {
-              const m=input.match(/loadstring\s*\(\s*string\.char\(([\d,\s]*)\)\)\(\)/s);
-              if(m && m[1] !== undefined){
-                  const s=m[1].trim();
-                  if(s===''){ output=""; } else {
-                      const c=s.split(',').map(x=>Number(x.trim())).filter(n => !isNaN(n));
-                      c.forEach(cd=>{
-                          if(!isNaN(cd) && cd >= 0 && cd <= 255) output+=String.fromCharCode(cd);
-                          else throw new Error(`Деобфускация string.char: Неверный код (${cd}).`);
-                      });
-                  }
-                  deobfuscated=true;
-              }
-         }
-
-         if (!deobfuscated) {
-             const m = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s);
-             if (m && m[1] !== undefined) {
-                 output = m[1].replace(/\\"/g,'"')
-                             .replace(/\\'/g,"'")
-                             .replace(/\\\\/g,"\\")
-                             .replace(/\\n/g,"\n")
-                             .replace(/\\t/g,"\t")
-                             .replace(/\\r/g,"\r")
-                             .replace(/\\f/g,"\f")
-                             .replace(/\\v/g,"\v");
-
-                 output = output.replace(/\\(\d{1,3})/g, (m, num) => {
-                     const charCode = parseInt(num, 10);
-                     if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) return String.fromCharCode(charCode);
-                     console.warn(`Fallback: Could not decode numeric escape \\${num}.`);
-                     return m;
-                 })
-                 .replace(/\\x([0-9a-fA-F]{2})/g, (m, hex) => {
-                      const charCode = parseInt(hex,16);
-                      if (!isNaN(charCode) && charCode >= 0 && charCode <= 255) return String.fromCharCode(charCode);
-                       console.warn(`Fallback: Could not decode hex escape \\x${hex}.`);
-                      return m;
-                 })
-                 .replace(/\\u\{([0-9a-fA-F]+)\}/g, (m, unicode) => {
-                      const charCode = parseInt(unicode,16);
-                      if (!isNaN(charCode)) return String.fromCharCode(charCode);
-                      console.warn(`Fallback: Could not decode unicode escape \\u{${unicode}}.`);
-                      return m;
-                 });
-
-                 console.warn("Fallback: извлечена строка из loadstring. Деобфускация может быть неполной или неточной.");
-                 if (output !== "" || m[1].trim() === "") {
-                     deobfuscated = true;
-                 } else {
-                     output = "Не удалось распознать тип обфускации или извлечь строку.";
-                     outputElement.style.borderColor = "#ff9800";
+             if(m && m[1]){
+                 try {
+                     // Use JS replace with String.fromCharCode to interpret \u{} escapes
+                     // This returns a JS string which might contain multi-byte UTF-16 sequences
+                     // representing the original characters. This bypasses the byteValues -> TextDecoder step.
+                     output = m[1].replace(/\\u\{([0-9a-fA-F]+)\}/g,(x,c)=>{
+                         const charCode = parseInt(c,16); // Get code point
+                         if (!isNaN(charCode)) return String.fromCharCode(charCode); // Convert code point to JS string part
+                         // If parsing fails, assume invalid input for this method
+                         throw new Error(`Деобфускация Unicode: Неверный код (${c}).`);
+                     });
+                     deobfuscated = true; // Mark as deobfuscated if replace worked without error
+                 } catch (e) {
+                     console.error("Деобфускация Unicode (String.fromCharCode):", e);
+                      // If String.fromCharCode fails or code point is invalid, it throws.
+                      // 'deobfuscated' remains false, allowing fallback.
                  }
              }
          }
 
+         // Fallback: Attempt to extract simple string literal (less reliable for escaped non-ASCII)
+         // This fallback is less reliable for non-ASCII characters if they were escaped
+         // in a way that JS string literals don't automatically handle to produce
+         // the correct UTF-16 string that maps to the original UTF-8 bytes.
+         // However, for simple ASCII strings or cases where non-ASCII chars weren't escaped, it might work.
+         // We will NOT attempt to re-encode this fallback string as bytes, as it's ambiguous.
+         // We just take the JS string result after standard JS string literal interpretation.
          if (!deobfuscated) {
-              output = "Не удалось распознать тип обфускации.";
+              const m = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s); // Capture content inside quotes
+              if (m && m[1] !== undefined) {
+                   // The captured string content will have standard JS string literal escapes processed
+                   // e.g., \\ becomes \, \n becomes newline, \" becomes ".
+                   // \xHH and \u{...} might also be processed by JS depending on strictness/context,
+                   // but relying on this is fragile. The specific pattern matchers above are better.
+                   output = m[1]; // Take the raw string content from the match group
+                   console.warn("Fallback: извлечена строка из loadstring. Деобфускация может быть неполной или неточной для сложных экранирований.");
+                   deobfuscated = true; // Mark as deobfuscated, even if potentially incomplete
+              }
+         }
+
+
+         // --- Decode bytes using TextDecoder if byteValues were collected ---
+         // This step is skipped if the Unicode method or Fallback method was successful,
+         // as they directly produced the 'output' string.
+         if (deobfuscated && byteValues !== null) { // Check if byteValues was successfully populated by a byte-based method
+             if (byteValues.length > 0) {
+                 try {
+                     const decoder = new TextDecoder('utf-8'); // Decode the byte array as UTF-8
+                     output = decoder.decode(new Uint8Array(byteValues));
+                 } catch (decodeError) {
+                     console.error("Deobfuscation (TextDecoder):", decodeError);
+                     output = `Ошибка деобфускации (декодирование UTF-8): ${decodeError.message}`;
+                     outputElement.style.borderColor = "#ff9800";
+                     deobfuscated = false; // Mark as failed if decoding fails
+                 }
+             } else { // byteValues is an empty array (e.g., from empty input)
+                 output = ""; // Successfully deobfuscated to an empty string
+             }
+         }
+
+
+         // --- Final Status/Error Handling ---
+         if (!deobfuscated) {
+              // If output was set by a failed step (like Unicode error), keep it. Otherwise, use default.
+              output = output || "Не удалось распознать тип обфускации.";
+              outputElement.textContent = output; // Ensure error message is displayed
               outputElement.style.borderColor = "#ff9800";
          } else if (output === "" && input !== "") {
+             // Successfully deobfuscated, but result is empty while input was not.
+             // This might be valid for some inputs, but could also indicate an issue.
              output = "Код деобфусцирован, но результат пуст (возможно, был пустой код после обфускации или проблема в данных).";
-             outputElement.style.borderColor = "#ff9800";
-         } else if (output !== "" && !output.startsWith('Ошибка деобфускации') && !output.startsWith('Не удалось распознать')) {
-              outputElement.style.borderColor = "#4CAF50";
+              outputElement.textContent = output; // Display warning message
+              outputElement.style.borderColor = "#ff9800"; // Use warning color
+         } else if (output !== "" && !output.startsWith('Ошибка') && !output.startsWith('Не удалось')) {
+             // Successfully deobfuscated and got non-empty result.
+              outputElement.textContent = output; // Display success result
+              outputElement.style.borderColor = "#4CAF50"; // Success color
          }
+         // If output was set by Unicode method successfully, it falls through to here.
+         // If output was set by Fallback successfully, it also falls through here.
+
 
     } catch (e) {
          console.error("Deobfuscation error:", e);
          output = `Ошибка деобфускации: ${e.message}`;
+         outputElement.textContent = output; // Ensure error message is displayed
          outputElement.style.borderColor = "#ff9800";
     }
-
-    outputElement.textContent = output;
 }
 
 // --- Copy to Clipboard (Code Obfuscator) ---
@@ -476,7 +717,7 @@ function deobfuscate() {
      }
 
     navigator.clipboard.writeText(text).then(() => {
-         const btn = document.querySelector("#codeObfuscator .copy-btn"); // Select specific button
+         const btn = document.querySelector("#codeObfuscator .copy-btn");
          const originalText = btn.textContent;
          btn.textContent = "СКОПИРОВАНО!";
          btn.classList.add("copied");
@@ -494,7 +735,7 @@ function deobfuscate() {
               ta.select();
               const ok = document.execCommand("copy");
               document.body.removeChild(ta);
-              const btn = document.querySelector("#codeObfuscator .copy-btn"); // Select specific button
+              const btn = document.querySelector("#codeObfuscator .copy-btn");
               const originalText = btn.textContent;
               if (ok) {
                   btn.textContent = "Скопировано!";
@@ -531,10 +772,9 @@ document.getElementById("output").addEventListener("click", function(event) {
 });
 
 
-// --- URL Obfuscator Functions (Copied and Adapted) ---
+// --- URL Obfuscator Functions (Adapted for UTF-8 Bytes in URL Path/Query) ---
 
 function encodeUrl() {
-    // Use input and output elements from the *URL* obfuscator section
     const url = document.getElementById('urlInput').value.trim();
     const urlOutputContainer = document.getElementById('urlOutputContainer');
 
@@ -544,35 +784,50 @@ function encodeUrl() {
         return;
     }
 
-    const safeChars = new Set(['/', '=', '+', '-', '_', '~', ':']); // Added '.' as safe based on common URL needs
+    // Define characters that are safe *in the path and query* and are single-byte ASCII
+    // based on typical URL encoding conventions.
+    const safeChars = new Set(['/', '=', '+', '-', '_', '~', ':', '.', '?', '&']);
 
     let result = "";
-    let i = 0;
+    let baseUrl = "";
+    let pathAndQuery = "";
 
-    if (url.startsWith("https://")) {
-        result = "https://";
-        i = 8;
-    } else if (url.startsWith("http://")) {
-        result = "http://";
-        i = 7;
+    // Attempt to split URL into base (scheme://host[:port]) and path/query
+    const urlMatch = url.match(/^([a-zA-Z]+:\/\/[^\/]+)(\/.*)?$/);
+    if (urlMatch) {
+        baseUrl = urlMatch[1];
+        pathAndQuery = urlMatch[2] || "";
+        result += baseUrl; // Add base URL as-is (hostnames don't use percent encoding for non-ASCII usually)
+    } else {
+         // If it doesn't match scheme://host, treat the whole thing as potentially needing encoding.
+         // This is less common for game:HttpGet, but safer than failing.
+         pathAndQuery = url;
+         console.warn("URL does not match standard scheme://host pattern. Attempting to encode the whole string except scheme/first part.");
+         // If there's no scheme://host, maybe the user just entered a path? Or an invalid URL?
+         // Let's just put the original string in result and encode the whole thing for safety if no scheme found.
+         result = ""; // Reset result, will rebuild from encoded pathAndQuery
+         pathAndQuery = url; // Encode the full input
     }
 
-    for (; i < url.length; i++) {
-        const char = url[i];
-        // Check if charCode is valid before encoding
-         if (char.charCodeAt(0) > 255) {
-             console.warn(`Skipping non-ASCII character in URL: ${char}`);
-             result += char; // Append non-ASCII as-is, or handle error? Let's append as-is for now.
-         } else if (safeChars.has(char)) {
-            result += char;
-        } else {
-            result += "%" + char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0');
+
+    const encoder = new TextEncoder();
+    const pathAndQueryBytes = encoder.encode(pathAndQuery); // Get UTF-8 bytes for the part to encode
+
+    for (const byte of pathAndQueryBytes) {
+        const char = String.fromCharCode(byte); // Convert byte back to a char (will be 0-255)
+
+        // Check if the byte corresponds to a safe character (and is ASCII)
+        if (byte >= 0 && byte <= 127 && safeChars.has(char)) {
+             result += char; // Append the safe character
+         } else {
+            // Encode the byte as %HH (e.g., a Cyrillic byte like 208 (D0) becomes %D0)
+            result += "%" + byte.toString(16).toUpperCase().padStart(2, '0');
         }
     }
 
     const loadstringCode = `loadstring(game:HttpGet("${result}"))()`;
 
-    // Display results with professional formatting in the URL output container
+    // Display results with professional formatting
     urlOutputContainer.innerHTML = `
         <div class="result-box">
             <span class="result-label">OBFUSCATED URL:</span>
@@ -589,30 +844,25 @@ function encodeUrl() {
 
 // --- Copy to Clipboard (URL Obfuscator) ---
 function copyUrlToClipboard() {
-    // Use the textarea from the *URL* obfuscator section
     const textarea = document.getElementById('urlLuaCode');
     if (!textarea) {
-         alert("No code to copy."); // Handle case where textarea hasn't been created yet
+         alert("No code to copy.");
          return;
     }
 
     textarea.select();
-    // For modern browsers
     navigator.clipboard.writeText(textarea.value).then(() => {
-         const btn = document.querySelector('#urlObfuscator .copy-btn'); // Select specific button
+         const btn = document.querySelector('#urlObfuscator .copy-btn');
          const originalText = btn.textContent;
+         const originalBg = btn.style.backgroundColor; // Store original color
          btn.textContent = "COPIED!";
          btn.style.backgroundColor = "#4CAF50"; // Green feedback color
-         // In dark mode, the green should also match
          if (document.body.classList.contains('dark-theme')) {
-             btn.style.backgroundColor = "#2e7d32";
+             btn.style.backgroundColor = "#2e7d32"; // Dark theme green
          }
          setTimeout(() => {
              btn.textContent = originalText;
-             btn.style.backgroundColor = "#2196F3"; // Reset to blue
-              if (document.body.classList.contains('dark-theme')) {
-                btn.style.backgroundColor = "#1565c0";
-            }
+             btn.style.backgroundColor = originalBg; // Reset to original color
          }, 2000);
     }).catch(err => {
          console.error("Copy error (URL): ", err);
@@ -627,6 +877,7 @@ function copyUrlToClipboard() {
                document.body.removeChild(ta);
                const btn = document.querySelector('#urlObfuscator .copy-btn');
                const originalText = btn.textContent;
+               const originalBg = btn.style.backgroundColor;
                if (ok) {
                    btn.textContent = "Copied!";
                    btn.style.backgroundColor = "#4CAF50";
@@ -638,11 +889,8 @@ function copyUrlToClipboard() {
                }
                setTimeout(() => {
                    btn.textContent = originalText;
-                    btn.style.backgroundColor = "#2196F3";
-                     if (document.body.classList.contains('dark-theme')) {
-                         btn.style.backgroundColor = "#1565c0";
-                    }
-               }, 2500); // Longer timeout for fallback message
+                    btn.style.backgroundColor = originalBg;
+               }, 2500);
          } catch (e) {
               console.error("Fallback copy failed (URL): ", e);
               alert("Failed to copy URL code.");
@@ -650,11 +898,10 @@ function copyUrlToClipboard() {
     });
 }
 
- // Prevent default form submission if container was a form (it's not, but good practice)
- // Ensure URL input doesn't trigger unexpected behaviour
+ // Trigger URL encoding on Enter key press in the URL input field
  document.getElementById('urlInput').addEventListener('keypress', function(event) {
      if (event.key === 'Enter') {
-         event.preventDefault(); // Prevent form submission
-         encodeUrl(); // Trigger the function
+         event.preventDefault(); // Prevent default form submission behavior
+         encodeUrl(); // Call the encode function
      }
  });
