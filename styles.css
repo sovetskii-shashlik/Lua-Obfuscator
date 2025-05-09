@@ -239,7 +239,7 @@ body.dark-theme #codeObfuscator .status {
 #urlObfuscator input {
     /* Corrected width: use 100% with border-box */
     width: 100%;
-    padding: 10px; /* Increased padding slightly */
+    padding: 14px; /* Increased padding slightly */
     margin-bottom: 15px; /* Added space below input */
     border: 1px solid #ccc; /* Light theme default */
     border-radius: 4px;
@@ -301,7 +301,7 @@ body.dark-theme #codeObfuscator .status {
 #urlObfuscator textarea { /* Applies to the result textarea */
     /* Corrected width: use 100% with border-box */
     width: 100%;
-    padding: 12px;
+    padding: 16px;
     margin-bottom: 10px;
     border: 1px solid #ccc; /* Light theme default */
     border-radius: 4px;
