@@ -512,9 +512,9 @@ function deobfuscate() {
                    let isValid = true;
 
                    if (!isNaN(value)) {
-                       for (let i = 0; i < initialCodes.length; ++i) {
-                           let code = initialCodes[i];
-                           let byteValue = NaN; // Use NaN to indicate not calculated/invalid
+                       for (let i = 1; i <= initialCodes.length; ++i) { // Lua arrays are 1-indexed
+                           let code = initialCodes[i-1]; // Access with 0-indexed JS array
+                           let byteValue = NaN;
 
                            if (operation === "-") { // Offset or Random Offset (Lua was byte + offset, JS undoes offset)
                                 byteValue = code - value;
@@ -629,26 +629,22 @@ function deobfuscate() {
                      deobfuscated = true; // Mark as deobfuscated if replace worked without error
                  } catch (e) {
                      console.error("Деобфускация Unicode (String.fromCharCode):", e);
-                      // If String.fromCharCode fails or code point is invalid, it throws.
                       // 'deobfuscated' remains false, allowing fallback.
                  }
              }
          }
 
+
          // Fallback: Attempt to extract simple string literal (less reliable for escaped non-ASCII)
-         // This fallback is less reliable for non-ASCII characters if they were escaped
-         // in a way that JS string literals don't automatically handle to produce
-         // the correct UTF-16 string that maps to the original UTF-8 bytes.
-         // However, for simple ASCII strings or cases where non-ASCII chars weren't escaped, it might work.
-         // We will NOT attempt to re-encode this fallback string as bytes, as it's ambiguous.
-         // We just take the JS string result after standard JS string literal interpretation.
+         // If no other pattern matched, try to find a basic loadstring("...")()
+         // This captures the literal content within the quotes. JS will handle its own escapes (\\, \n, \", etc.)
+         // but might not correctly interpret byte-level Lua escapes like \208\180 as a single character.
+         // This is a last resort.
          if (!deobfuscated) {
               const m = input.match(/loadstring\(\s*["'](.*?)["']\s*\)\(\)/s); // Capture content inside quotes
               if (m && m[1] !== undefined) {
                    // The captured string content will have standard JS string literal escapes processed
                    // e.g., \\ becomes \, \n becomes newline, \" becomes ".
-                   // \xHH and \u{...} might also be processed by JS depending on strictness/context,
-                   // but relying on this is fragile. The specific pattern matchers above are better.
                    output = m[1]; // Take the raw string content from the match group
                    console.warn("Fallback: извлечена строка из loadstring. Деобфускация может быть неполной или неточной для сложных экранирований.");
                    deobfuscated = true; // Mark as deobfuscated, even if potentially incomplete
@@ -670,7 +666,7 @@ function deobfuscate() {
                      outputElement.style.borderColor = "#ff9800";
                      deobfuscated = false; // Mark as failed if decoding fails
                  }
-             } else { // byteValues is an empty array (e.g., from empty input)
+             } else { // byteValues is an empty array (e.g., from empty input that produced empty bytes)
                  output = ""; // Successfully deobfuscated to an empty string
              }
          }
@@ -684,17 +680,24 @@ function deobfuscate() {
               outputElement.style.borderColor = "#ff9800";
          } else if (output === "" && input !== "") {
              // Successfully deobfuscated, but result is empty while input was not.
-             // This might be valid for some inputs, but could also indicate an issue.
-             output = "Код деобфусцирован, но результат пуст (возможно, был пустой код после обфускации или проблема в данных).";
+             // This might be valid for some inputs (e.g., comments only), but could also indicate an issue.
+             output = "Код деобфусцирован, но результат пуст (возможно, был пустой код после обфускации).";
               outputElement.textContent = output; // Display warning message
               outputElement.style.borderColor = "#ff9800"; // Use warning color
-         } else if (output !== "" && !output.startsWith('Ошибка') && !output.startsWith('Не удалось')) {
+         } else if (output !== "") { // Check if output is not empty after successful deobfuscation
              // Successfully deobfuscated and got non-empty result.
-              outputElement.textContent = output; // Display success result
-              outputElement.style.borderColor = "#4CAF50"; // Success color
+              // Ensure it doesn't start with error messages from previous steps if they failed partially.
+              if (!output.startsWith('Ошибка') && !output.startsWith('Не удалось')) {
+                  outputElement.textContent = output; // Display success result
+                  outputElement.style.borderColor = "#4CAF50"; // Success color
+              } else {
+                   // This case should be caught by !deobfuscated, but as a safeguard.
+                   outputElement.textContent = output;
+                   outputElement.style.borderColor = "#ff9800";
+              }
          }
-         // If output was set by Unicode method successfully, it falls through to here.
-         // If output was set by Fallback successfully, it also falls through here.
+         // If output is empty and input was empty, it also successfully falls through here
+         // and output remains "" which is correct.
 
 
     } catch (e) {
@@ -772,7 +775,7 @@ document.getElementById("output").addEventListener("click", function(event) {
 });
 
 
-// --- URL Obfuscator Functions (Adapted for UTF-8 Bytes in URL Path/Query) ---
+// --- URL Obfuscator Function (Encoding Entire Input) ---
 
 function encodeUrl() {
     const url = document.getElementById('urlInput').value.trim();
@@ -784,50 +787,34 @@ function encodeUrl() {
         return;
     }
 
-    // Define characters that are safe *in the path and query* and are single-byte ASCII
-    // based on typical URL encoding conventions.
-    const safeChars = new Set(['/', '=', '+', '-', '_', '~', ':', '.', '?', '&']);
+    // Define characters that are safe *within the entire string* as per user's request.
+    // Encode ALL other characters byte-by-byte using percent encoding.
+    const safeChars = new Set(['/', '=', '+', '-', '_', '~', ':']);
 
-    let result = "";
-    let baseUrl = "";
-    let pathAndQuery = "";
-
-    // Attempt to split URL into base (scheme://host[:port]) and path/query
-    const urlMatch = url.match(/^([a-zA-Z]+:\/\/[^\/]+)(\/.*)?$/);
-    if (urlMatch) {
-        baseUrl = urlMatch[1];
-        pathAndQuery = urlMatch[2] || "";
-        result += baseUrl; // Add base URL as-is (hostnames don't use percent encoding for non-ASCII usually)
-    } else {
-         // If it doesn't match scheme://host, treat the whole thing as potentially needing encoding.
-         // This is less common for game:HttpGet, but safer than failing.
-         pathAndQuery = url;
-         console.warn("URL does not match standard scheme://host pattern. Attempting to encode the whole string except scheme/first part.");
-         // If there's no scheme://host, maybe the user just entered a path? Or an invalid URL?
-         // Let's just put the original string in result and encode the whole thing for safety if no scheme found.
-         result = ""; // Reset result, will rebuild from encoded pathAndQuery
-         pathAndQuery = url; // Encode the full input
-    }
-
+    let result = ""; // This will hold the final percent-encoded string
 
     const encoder = new TextEncoder();
-    const pathAndQueryBytes = encoder.encode(pathAndQuery); // Get UTF-8 bytes for the part to encode
+    const urlBytes = encoder.encode(url); // Get UTF-8 bytes for the ENTIRE input URL
 
-    for (const byte of pathAndQueryBytes) {
-        const char = String.fromCharCode(byte); // Convert byte back to a char (will be 0-255)
+    for (const byte of urlBytes) {
+        const char = String.fromCharCode(byte); // Convert byte back to a char (0-255 range)
 
-        // Check if the byte corresponds to a safe character (and is ASCII)
+        // Check if the byte corresponds to a safe character AND is a single-byte ASCII char (0-127).
+        // This ensures we only treat the specific ASCII safe characters as exceptions.
         if (byte >= 0 && byte <= 127 && safeChars.has(char)) {
-             result += char; // Append the safe character
+             result += char; // Append the safe character directly
          } else {
-            // Encode the byte as %HH (e.g., a Cyrillic byte like 208 (D0) becomes %D0)
+            // Encode the byte as %HH (e.g., a Cyrillic byte like 208 (D0) becomes %D0).
+            // This applies to all bytes that are not one of the explicitly listed ASCII safe chars.
             result += "%" + byte.toString(16).toUpperCase().padStart(2, '0');
         }
     }
 
+    // The final result string contains the entire input URL, byte-percent-encoded
+    // except for the specific safe characters.
     const loadstringCode = `loadstring(game:HttpGet("${result}"))()`;
 
-    // Display results with professional formatting
+    // Display results
     urlOutputContainer.innerHTML = `
         <div class="result-box">
             <span class="result-label">OBFUSCATED URL:</span>
@@ -840,6 +827,7 @@ function encodeUrl() {
             <button class="copy-btn" onclick="copyUrlToClipboard()">COPY TO CLIPBOARD</button>
         </div>
     `;
+    // Keep the warning message as is, explaining the encoding rule.
 }
 
 // --- Copy to Clipboard (URL Obfuscator) ---
