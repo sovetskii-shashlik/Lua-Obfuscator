@@ -237,7 +237,7 @@ body.dark-theme #codeObfuscator .status {
  }
 
 #urlObfuscator input {
-    width: calc(100% - 28px); /* Account for padding and border */
+    width: calc(100% - 32px); /* Account for padding and border */
     padding: 8px; /* Increased padding slightly */
     margin-bottom: 8px; /* Added space below input */
     border: 1px solid #ccc; /* Light theme default */
@@ -298,7 +298,7 @@ body.dark-theme #codeObfuscator .status {
     display: block;
 }
 #urlObfuscator textarea { /* Applies to the result textarea */
-     width: calc(100% - 28px); /* Account for padding and border */
+     width: calc(100% - 32px); /* Account for padding and border */
     padding: 12px;
     margin-bottom: 10px;
     border: 1px solid #ccc; /* Light theme default */
