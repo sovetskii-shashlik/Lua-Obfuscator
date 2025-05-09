@@ -9,7 +9,7 @@
 <body>
     <div class="toggle-buttons">
         <button id="themeToggle">🌙</button>
-         <button id="urlToggleBtn" title="Переключить на URL обфускатор">🔗</button>
+        <button id="urlToggleBtn" title="Переключить на URL обфускатор">🔗</button>
     </div>
 
     <div id="codeObfuscator">
@@ -60,18 +60,16 @@
 
             <button onclick="encodeUrl()">GENERATE OBFUSCATED CODE</button>
 
-            <div class="output-container" id="urlOutputContainer">
-                </div>
+            <div class="output-container" id="urlOutputContainer"></div>
 
             <div class="warning">
                 <strong>WARNING:</strong> Эта кодировка предназначена только для URL.<br>
                 символы которые останутся без изменений: / = + - _ ~ :<br>
-                Работоспособность скрипта является 100% если он небыл удалён.
+                Работоспособность скрипта является 100% если он не был удалён.
             </div>
         </div>
     </div>
 
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
