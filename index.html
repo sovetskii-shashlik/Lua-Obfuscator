@@ -3,44 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lua-обфускатор</title>
+    <title>Lua Obfuscator Tools</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
-    <h1>Lua-обфускатор</h1>
-    <textarea id="input" placeholder="Введи Lua-код..."></textarea>
-
-    <div class="buttons-grid">
-        <button onclick="obfuscate('ascii')">ASCII</button>
-        <button onclick="obfuscate('hex')">HEX</button>
-        <button onclick="obfuscate('unicode')">Unicode</button>
-        <button onclick="obfuscate('number')">Числовая</button>
-        <button onclick="obfuscate('base3')">Base3</button>
-        <button onclick="obfuscate('binary')">Binary</button>
-        <button onclick="obfuscate('base4')">Base4</button>
-        <button onclick="obfuscate('base5')">Base5</button>
-        <button onclick="obfuscate('octal')">Octal (Base7)</button><button onclick="obfuscate('octal8')">Octal (Base8)</button><button onclick="obfuscate('interleave')">Чересполосица</button>
-        <button onclick="obfuscate('prime')">Простое число</button>
-        <button onclick="obfuscate('offset')">Смещение (+5)</button>
-        <button onclick="obfuscate('multiply')">Умножение (x2)</button>
-        <button onclick="obfuscate('random_offset')">Смещение (Рандом)</button>
-        <button onclick="obfuscate('random_multiply')">Умножение (Рандом)</button>
+    <div class="toggle-buttons">
+        <button id="themeToggle">🌙</button>
+         <button id="urlToggleBtn" title="Переключить на URL обфускатор">🔗</button>
     </div>
 
-    <div id="output"></div>
+    <div id="codeObfuscator">
+        <h1>Lua-обфускатор</h1>
+        <textarea id="input" placeholder="Введи Lua-код..."></textarea>
 
-    <button onclick="copyToClipboard()" class="copy-btn">КОПИРОВАТЬ</button>
-    <button onclick="deobfuscate()" class="deobfuscate-btn">DEOBFUSCATE</button>
+        <div class="buttons-grid">
+            <button onclick="obfuscate('ascii')">ASCII</button>
+            <button onclick="obfuscate('hex')">HEX</button>
+            <button onclick="obfuscate('unicode')">Unicode</button>
+            <button onclick="obfuscate('number')">Числовая</button>
+            <button onclick="obfuscate('base3')">Base3</button>
+            <button onclick="obfuscate('binary')">Binary</button>
+            <button onclick="obfuscate('base4')">Base4</button>
+            <button onclick="obfuscate('base5')">Base5</button>
+            <button onclick="obfuscate('octal')">Octal (Base7)</button>
+            <button onclick="obfuscate('octal8')">Octal (Base8)</button>
+            <button onclick="obfuscate('interleave')">Чересполосица</button>
+            <button onclick="obfuscate('prime')">Простое число</button>
+            <button onclick="obfuscate('offset')">Смещение (+5)</button>
+            <button onclick="obfuscate('multiply')">Умножение (x2)</button>
+            <button onclick="obfuscate('random_offset')">Смещение (Рандом)</button>
+            <button onclick="obfuscate('random_multiply')">Умножение (Рандом)</button>
+        </div>
 
-    <button onclick="startMultiLayerObfuscation()" class="multi-obfuscate-btn" id="multiObfuscateBtn">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1</button>
-    <div class="status" id="status"></div>
+        <div id="output"></div>
 
-    <button onclick="startMultiLayerObfuscationV2()" class="multi-obfuscate-btn-v2" id="multiObfuscateBtnV2">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2</button>
-    <div class="status" id="statusV2"></div>
+        <button onclick="copyCodeToClipboard()" class="copy-btn">КОПИРОВАТЬ КОД</button>
+        <button onclick="deobfuscate()" class="deobfuscate-btn">DEOBFUSCATE</button>
 
-    <button onclick="startMultiLayerObfuscationV3()" class="multi-obfuscate-btn-v3" id="multiObfuscateBtnV3">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3</button>
-    <div class="status" id="statusV3"></div>
+        <button onclick="startMultiLayerObfuscation()" class="multi-obfuscate-btn" id="multiObfuscateBtn">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1</button>
+        <div class="status" id="status"></div>
+
+        <button onclick="startMultiLayerObfuscationV2()" class="multi-obfuscate-btn-v2" id="multiObfuscateBtnV2">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2</button>
+        <div class="status" id="statusV2"></div>
+
+        <button onclick="startMultiLayerObfuscationV3()" class="multi-obfuscate-btn-v3" id="multiObfuscateBtnV3">МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3</button>
+        <div class="status" id="statusV3"></div>
+    </div>
+
+    <div id="urlObfuscator" style="display: none;">
+        <div class="container">
+            <h1>LUA URL OBFUSCATOR</h1>
+            <p class="subtitle">Roblox loadstring(game:HttpGet()) encoder</p>
+
+            <label for="urlInput">ENTER GITHUB RAW URL:</label>
+            <input type="text" id="urlInput" placeholder="https://raw.githubusercontent.com/...">
+
+            <button onclick="encodeUrl()">GENERATE OBFUSCATED CODE</button>
+
+            <div class="output-container" id="urlOutputContainer">
+                </div>
+
+            <div class="warning">
+                <strong>WARNING:</strong> This tool provides basic URL obfuscation only.<br>
+                Encodes all characters except: / = + - _ ~ :<br>
+                Use at your own risk. Not guaranteed to bypass all anti-cheat systems.
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
