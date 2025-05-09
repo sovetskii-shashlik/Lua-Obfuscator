@@ -177,7 +177,7 @@ body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3 { background-color: #7b1
 #codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #7b1fa2; transform: translateY(-2px); }
 body.dark-theme #codeObfuscator .multi-obfuscate-btn:hover,
 body.dark-theme #codeObfuscator .multi-obfuscate-btn-v2:hover,
-body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #4a148c; transform: translateY(-2px); }
+body.dark-theme #multiObfuscateBtnV3:hover { background-color: #4a148c; transform: translateY(-2px); }
 #codeObfuscator .multi-obfuscate-btn.processing,
 #codeObfuscator .multi-obfuscate-btn-v2.processing,
 #codeObfuscator .multi-obfuscate-btn-v3.processing { animation: pulse 1s infinite; }
@@ -237,9 +237,10 @@ body.dark-theme #codeObfuscator .status {
  }
 
 #urlObfuscator input {
-    width: 95%; /* Account for padding and border */
-    padding: 8px; /* Increased padding slightly */
-    margin-bottom: 8px; /* Added space below input */
+    /* Corrected width: use 100% with border-box */
+    width: 100%;
+    padding: 10px; /* Increased padding slightly */
+    margin-bottom: 15px; /* Added space below input */
     border: 1px solid #ccc; /* Light theme default */
     border-radius: 4px;
     background-color: #f9f9f9; /* Light theme default */
@@ -298,7 +299,8 @@ body.dark-theme #codeObfuscator .status {
     display: block;
 }
 #urlObfuscator textarea { /* Applies to the result textarea */
-     width: 100%; /* Account for padding and border */
+    /* Corrected width: use 100% with border-box */
+    width: 100%;
     padding: 12px;
     margin-bottom: 10px;
     border: 1px solid #ccc; /* Light theme default */
@@ -398,10 +400,10 @@ body.dark-theme #codeObfuscator .status {
      }
       h1 { font-size: 1.2rem; }
       #codeObfuscator #output, #codeObfuscator textarea { font-size: 12px; }
-      /* Adjust padding/width for inputs/textareas in URL section as well */
+      /* Adjust padding for inputs/textareas in URL section as well */
+      /* Width remains 100% due to border-box */
      #urlObfuscator input, #urlObfuscator textarea {
-         width: calc(100% - 20px); /* Smaller padding on smaller screens */
-         padding: 10px;
+         padding: 10px; /* Smaller padding on smaller screens */
      }
 
  }
