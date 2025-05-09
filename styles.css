@@ -1,4 +1,6 @@
-/* CSS из первого блока (без изменений) */
+/* --- Combined CSS --- */
+
+/* Base Body & Theme */
 body {
     font-family: Arial, sans-serif;
     max-width: 100%;
@@ -12,148 +14,19 @@ body.dark-theme {
     background-color: #121212;
     color: #e0e0e0;
 }
-body.dark-theme h1 {
-    color: #ffffff;
-}
-body.dark-theme textarea, body.dark-theme #output { /* Вот это правило из вашего исходного кода */
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border-color: #2e7d32; /* Dark theme accent */
-}
-h1 {
-    color: #333;
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-body.dark-theme h1 {
-    color: #fff;
-}
-textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    font-family: monospace;
-    border: 2px solid #4CAF50; /* Light theme accent */
-    border-radius: 5px;
-    resize: vertical;
-    font-size: 14px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    /* Цвет текста по умолчанию (не плейсхолдера) */
-    color: #333;
-}
-#output { /* Основные стили для output */
-    width: 100%;
-    min-height: 60px; /* Добавлено минимальная высота */
-    padding: 10px;
-    font-family: monospace;
-    background-color: #fff;
-    border: 2px solid #4CAF50; /* Light theme accent */
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    user-select: all; /* Keep user-select for easy copy */
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    /* Цвет текста по умолчанию (не плейсхолдера) */
-    color: #333;
-}
-/* Стили output для темной темы берутся из объединенного правила выше */
-/* body.dark-theme #output { ... } */
 
-
-/* Grid for standard obfuscation buttons */
-.buttons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 8px;
-    margin: 15px 0; /* Margin around the grid */
-}
-
-/* Base button style (applied to grid buttons by default) */
-button {
-    padding: 10px;
-    background-color: #4CAF50; /* Standard Green */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.3s;
-    width: 100%; /* Ensures buttons fill grid cells */
-    box-sizing: border-box;
-}
-body.dark-theme button {
-    background-color: #2e7d32; /* Dark theme Standard Green */
-}
-
-/* Hover for grid buttons */
-.buttons-grid button:hover {
-     background-color: #45a049;
-     transform: translateY(-2px);
-     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-body.dark-theme .buttons-grid button:hover {
-     background-color: #1b5e20;
-     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-}
-
-/* Styles for the FULL-WIDTH buttons (Copy, Deobfuscate, Multi-Layer) */
-.copy-btn,
-.deobfuscate-btn,
-.multi-obfuscate-btn,
-.multi-obfuscate-btn-v2,
-.multi-obfuscate-btn-v3 {
-    width: 100%;      /* Make them full width */
-    margin-top: 10px; /* Add space above each */
-    /* Inherit base padding, font-size etc. but override width/margin */
-    /* Override base button background for specific actions */
-}
-
-/* Specific colors remain the same */
-.copy-btn { background-color: #2196F3; }
-body.dark-theme .copy-btn { background-color: #1565c0; }
-.copy-btn:hover { background-color: #0b7dda; transform: translateY(-2px); } /* Add transform */
-body.dark-theme .copy-btn:hover { background-color: #0d47a1; transform: translateY(-2px); }
-.copy-btn.copied { background-color: #4CAF50; animation: pulse 0.5s; }
-body.dark-theme .copy-btn.copied { background-color: #2e7d32; }
-
-.deobfuscate-btn { background-color: #ff9800; }
-body.dark-theme .deobfuscate-btn { background-color: #e65100; }
-.deobfuscate-btn:hover { background-color: #f57c00; transform: translateY(-2px); } /* Add transform */
-body.dark-theme .deobfuscate-btn:hover { background-color: #bf360c; transform: translateY(-2px); }
-
-.multi-obfuscate-btn,
-.multi-obfuscate-btn-v2,
-.multi-obfuscate-btn-v3 { background-color: #9c27b0; }
-body.dark-theme .multi-obfuscate-btn,
-body.dark-theme .multi-obfuscate-btn-v2,
-body.dark-theme .multi-obfuscate-btn-v3 { background-color: #7b1fa2; }
-.multi-obfuscate-btn:hover,
-.multi-obfuscate-btn-v2:hover,
-.multi-obfuscate-btn-v3:hover { background-color: #7b1fa2; transform: translateY(-2px); } /* Add transform */
-body.dark-theme .multi-obfuscate-btn:hover,
-body.dark-theme .multi-obfuscate-btn-v2:hover,
-body.dark-theme .multi-obfuscate-btn-v3:hover { background-color: #4a148c; transform: translateY(-2px); }
-.multi-obfuscate-btn.processing,
-.multi-obfuscate-btn-v2.processing,
-.multi-obfuscate-btn-v3.processing { animation: pulse 1s infinite; }
-
-@keyframes pulse {
-    0% { transform: scale(1) translateY(0px); }
-    50% { transform: scale(1.03) translateY(-1px); }
-    100% { transform: scale(1) translateY(0px); }
-}
-.theme-toggle {
+/* Toggle Buttons Container */
+ .toggle-buttons {
     position: absolute;
     top: 15px;
     right: 15px;
+    display: flex; /* Arrange buttons side-by-side */
+    gap: 8px; /* Space between buttons */
+    z-index: 10;
+ }
+
+/* Toggle Button Base Style (for both theme and view toggle) */
+.toggle-buttons button {
     width: 30px;
     height: 30px;
     background: white;
@@ -165,14 +38,152 @@ body.dark-theme .multi-obfuscate-btn-v3:hover { background-color: #4a148c; trans
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
-    z-index: 10;
+    padding: 0; /* Remove default button padding */
+    font-size: 1rem; /* Icon size */
 }
-body.dark-theme .theme-toggle {
+ body.dark-theme .toggle-buttons button {
     background: #333;
     color: #fff;
 }
-.status {
-    /* Status messages below their respective buttons */
+ .toggle-buttons button:hover {
+    transform: scale(1.1);
+ }
+
+/* H1 Title - Applies to both sections */
+h1 {
+    color: #333;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    margin-top: 40px; /* Add space above h1 to clear toggle buttons */
+}
+body.dark-theme h1 {
+    color: #fff;
+}
+
+/* --- Styles for Code Obfuscator Section (#codeObfuscator) --- */
+#codeObfuscator textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    font-family: monospace;
+    border: 2px solid #4CAF50; /* Light theme accent */
+    border-radius: 5px;
+    resize: vertical;
+    font-size: 14px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    color: #333; /* Default text color */
+}
+body.dark-theme #codeObfuscator textarea {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #2e7d32; /* Dark theme accent */
+}
+
+#codeObfuscator #output { /* Основные стили для output */
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    font-family: monospace;
+    background-color: #fff;
+    border: 2px solid #4CAF50; /* Light theme accent */
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    user-select: all;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    color: #333; /* Default text color */
+}
+ body.dark-theme #codeObfuscator #output { /* Стили output для темной темы */
+     background-color: #1e1e1e;
+     color: #ffffff;
+     border-color: #2e7d32;
+ }
+
+/* Grid for standard obfuscation buttons */
+#codeObfuscator .buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin: 15px 0;
+}
+
+/* Base button style (applied to grid buttons by default) */
+#codeObfuscator button {
+    padding: 10px;
+    background-color: #4CAF50; /* Standard Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+    width: 100%; /* Ensures buttons fill grid cells */
+    box-sizing: border-box;
+}
+body.dark-theme #codeObfuscator button {
+    background-color: #2e7d32; /* Dark theme Standard Green */
+}
+
+/* Hover for grid buttons */
+#codeObfuscator .buttons-grid button:hover {
+     background-color: #45a049;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+body.dark-theme #codeObfuscator .buttons-grid button:hover {
+     background-color: #1b5e20;
+     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Styles for the FULL-WIDTH buttons (Copy, Deobfuscate, Multi-Layer) */
+#codeObfuscator .copy-btn,
+#codeObfuscator .deobfuscate-btn,
+#codeObfuscator .multi-obfuscate-btn,
+#codeObfuscator .multi-obfuscate-btn-v2,
+#codeObfuscator .multi-obfuscate-btn-v3 {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Specific colors remain the same */
+#codeObfuscator .copy-btn { background-color: #2196F3; }
+body.dark-theme #codeObfuscator .copy-btn { background-color: #1565c0; }
+#codeObfuscator .copy-btn:hover { background-color: #0b7dda; transform: translateY(-2px); }
+body.dark-theme #codeObfuscator .copy-btn:hover { background-color: #0d47a1; transform: translateY(-2px); }
+#codeObfuscator .copy-btn.copied { background-color: #4CAF50; animation: pulse 0.5s; }
+body.dark-theme #codeObfuscator .copy-btn.copied { background-color: #2e7d32; }
+
+#codeObfuscator .deobfuscate-btn { background-color: #ff9800; }
+body.dark-theme #codeObfuscator .deobfuscate-btn { background-color: #e65100; }
+#codeObfuscator .deobfuscate-btn:hover { background-color: #f57c00; transform: translateY(-2px); }
+body.dark-theme #codeObfuscator .deobfuscate-btn:hover { background-color: #bf360c; transform: translateY(-2px); }
+
+#codeObfuscator .multi-obfuscate-btn,
+#codeObfuscator .multi-obfuscate-btn-v2,
+#codeObfuscator .multi-obfuscate-btn-v3 { background-color: #9c27b0; }
+body.dark-theme #codeObfuscator .multi-obfuscate-btn,
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v2,
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3 { background-color: #7b1fa2; }
+#codeObfuscator .multi-obfuscate-btn:hover,
+#codeObfuscator .multi-obfuscate-btn-v2:hover,
+#codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #7b1fa2; transform: translateY(-2px); }
+body.dark-theme #codeObfuscator .multi-obfuscate-btn:hover,
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v2:hover,
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #4a148c; transform: translateY(-2px); }
+#codeObfuscator .multi-obfuscate-btn.processing,
+#codeObfuscator .multi-obfuscate-btn-v2.processing,
+#codeObfuscator .multi-obfuscate-btn-v3.processing { animation: pulse 1s infinite; }
+
+/* Status messages */
+#codeObfuscator .status {
     margin-top: 5px;
     margin-bottom: 10px;
     padding: 8px;
@@ -182,33 +193,215 @@ body.dark-theme .theme-toggle {
     text-align: center;
     font-size: 0.9rem;
      transition: background-color 0.3s ease, color 0.3s ease;
-     /* Should be full width by default as block element */
 }
-body.dark-theme .status {
+body.dark-theme #codeObfuscator .status {
     background-color: #333;
     color: #e0e0e0;
 }
 
-/* Media query adjustments (mainly for grid) */
+/* --- Styles for URL Obfuscator Section (#urlObfuscator) --- */
+#urlObfuscator .container {
+    /* Background and padding handled by body.dark-theme and container */
+     background-color: #fff; /* Light theme default */
+     padding: 20px;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Light theme shadow */
+     max-width: 800px; /* Restrict width inside the main body padding */
+     margin: 0 auto; /* Center the container */
+}
+ body.dark-theme #urlObfuscator .container {
+     background-color: #2d2d2d;
+     box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Dark theme shadow */
+ }
+
+
+#urlObfuscator .subtitle {
+    text-align: center;
+    color: #888; /* Applies to both themes, could be adjusted */
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+ body.dark-theme #urlObfuscator .subtitle {
+     color: #ccc; /* Slightly lighter in dark theme */
+ }
+
+
+#urlObfuscator label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333; /* Light theme default */
+    font-weight: bold; /* Added bold for clarity */
+}
+ body.dark-theme #urlObfuscator label {
+     color: #aaa;
+ }
+
+#urlObfuscator input {
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 10px; /* Increased padding slightly */
+    margin-bottom: 15px; /* Added space below input */
+    border: 1px solid #ccc; /* Light theme default */
+    border-radius: 4px;
+    background-color: #f9f9f9; /* Light theme default */
+    color: #333; /* Light theme default */
+    font-family: 'Courier New', monospace;
+    box-sizing: border-box; /* Include padding/border in width */
+}
+ body.dark-theme #urlObfuscator input {
+     border: 1px solid #444;
+     background-color: #252525;
+     color: #fff;
+ }
+
+
+#urlObfuscator button { /* Applies to GENERATE button */
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-bottom: 15px;
+     font-size: 1rem; /* Keep font size consistent with other buttons */
+}
+#urlObfuscator button:hover {
+    background-color: #45a049;
+}
+ body.dark-theme #urlObfuscator button {
+     background-color: #2e7d32;
+ }
+ body.dark-theme #urlObfuscator button:hover {
+     background-color: #1b5e20;
+ }
+
+
+#urlObfuscator .output-container {
+    margin-top: 25px;
+    border-top: 1px solid #eee; /* Light theme default */
+    padding-top: 20px;
+}
+ body.dark-theme #urlObfuscator .output-container {
+    border-top: 1px solid #444;
+ }
+
+
+#urlObfuscator .result-box {
+    margin-bottom: 20px;
+}
+#urlObfuscator .result-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #4CAF50; /* Green accent */
+    display: block;
+}
+#urlObfuscator textarea { /* Applies to the result textarea */
+     width: calc(100% - 24px); /* Account for padding and border */
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc; /* Light theme default */
+    border-radius: 4px;
+    background-color: #f9f9f9; /* Light theme default */
+    color: #333; /* Light theme default */
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box; /* Include padding/border in width */
+}
+ body.dark-theme #urlObfuscator textarea {
+    border: 1px solid #444;
+    background-color: #252525;
+    color: #fff;
+ }
+
+#urlObfuscator .copy-btn { /* Specific style for the COPY button in URL section */
+    background-color: #2196F3; /* Blue */
+    width: auto; /* Allow button to size based on content/padding */
+    padding: 10px 15px;
+    margin-top: 5px;
+    display: inline-block; /* Don't force full width */
+    font-size: 0.9rem; /* Slightly smaller than main button */
+}
+#urlObfuscator .copy-btn:hover {
+    background-color: #0b7dda;
+}
+ body.dark-theme #urlObfuscator .copy-btn {
+     background-color: #1565c0;
+ }
+ body.dark-theme #urlObfuscator .copy-btn:hover {
+     background-color: #0d47a1;
+ }
+
+#urlObfuscator .warning {
+    color: #ff5722; /* Orange/Red */
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff3e0; /* Light background */
+    border-radius: 4px;
+    font-size: 0.85em;
+    line-height: 1.5;
+     border: 1px solid #ff9800; /* Orange border */
+}
+ body.dark-theme #urlObfuscator .warning {
+    background-color: #332222;
+    border: 1px solid #ff5722;
+     color: #ff9800; /* Lighter orange in dark mode */
+ }
+
+
+#urlObfuscator .url-display {
+    word-break: break-all;
+    padding: 12px;
+    background-color: #f9f9f9; /* Light theme default */
+    border-radius: 4px;
+    border: 1px solid #ccc; /* Light theme default */
+    margin-bottom: 15px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    color: #333; /* Light theme default */
+}
+ body.dark-theme #urlObfuscator .url-display {
+     background-color: #252525;
+     border: 1px solid #444;
+     color: #fff;
+ }
+
+
+/* Keyframes (unchanged) */
+@keyframes pulse {
+    0% { transform: scale(1) translateY(0px); }
+    50% { transform: scale(1.03) translateY(-1px); }
+    100% { transform: scale(1) translateY(0px); }
+}
+
+/* Media query adjustments (mainly for grid, apply to code obfuscator) */
 @media (max-width: 768px) {
-     .buttons-grid {
+     #codeObfuscator .buttons-grid {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
     /* Adjust base button style slightly if needed */
-    button {
+    #codeObfuscator button {
          font-size: 0.75rem;
          padding: 9px;
      }
      h1 { font-size: 1.3rem; }
 }
  @media (max-width: 480px) {
-     .buttons-grid {
+     #codeObfuscator .buttons-grid {
          grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
      }
-     button {
+     #codeObfuscator button {
           font-size: 0.7rem;
           padding: 8px;
      }
       h1 { font-size: 1.2rem; }
-      #output, textarea { font-size: 12px; }
+      #codeObfuscator #output, #codeObfuscator textarea { font-size: 12px; }
+      /* Adjust padding/width for inputs/textareas in URL section as well */
+     #urlObfuscator input, #urlObfuscator textarea {
+         width: calc(100% - 20px); /* Smaller padding on smaller screens */
+         padding: 10px;
+     }
+
  }
