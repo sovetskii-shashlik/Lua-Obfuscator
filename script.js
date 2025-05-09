@@ -2,17 +2,17 @@
 
 // --- Логика переключения темы ---
 const themeToggle = document.getElementById('themeToggle');
-const urlToggleBtn = document.getElementById('urlToggleBtn'); // Получаем новую кнопку
+const urlToggleBtn = document.getElementById('urlToggleBtn'); // Получаем кнопку переключения режимов
 
 themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     const isDark = document.body.classList.contains('dark-theme');
     themeToggle.textContent = isDark ? '☀️' : '🌙';
-    // Сохраняем предпочтения темы
+    // Сохраняем предпочтения темы в localStorage
     localStorage.setItem('darkTheme', isDark);
 });
 
-// Применяем сохраненную тему при загрузке
+// Применяем сохраненную тему при загрузке страницы
 if (localStorage.getItem('darkTheme') === 'true') {
     document.body.classList.add('dark-theme');
     themeToggle.textContent = '☀️';
@@ -24,30 +24,38 @@ if (localStorage.getItem('darkTheme') === 'true') {
 const codeObfuscatorDiv = document.getElementById('codeObfuscator');
 const urlObfuscatorDiv = document.getElementById('urlObfuscator');
 
+// Устанавливаем начальное состояние (обфускатор кода виден, URL скрыт)
+codeObfuscatorDiv.style.display = 'block';
+urlObfuscatorDiv.style.display = 'none';
+urlToggleBtn.textContent = '🔗'; // Иконка для ссылки (указывает, что переключит на URL режим)
+urlToggleBtn.title = 'Переключить на URL обфускатор';
+
+
 urlToggleBtn.addEventListener('click', () => {
      const isCodeViewVisible = codeObfuscatorDiv.style.display !== 'none';
 
      if (isCodeViewVisible) {
-         codeObfuscatorDiv.style.display = 'none';
-         urlObfuscatorDiv.style.display = 'block'; // Или flex/grid, если нужно
+         codeObfuscatorDiv.style.display = 'none'; // Скрываем обфускатор кода
+         urlObfuscatorDiv.style.display = 'block'; // Показываем URL обфускатор
          urlToggleBtn.textContent = '📄'; // Иконка для файла кода
          urlToggleBtn.title = 'Переключить на обфускатор кода';
-         // Очищаем статусы при переключении
+         // Очищаем поля обфускатора кода при переключении на URL
          document.getElementById("status").textContent = '';
          document.getElementById("statusV2").textContent = '';
          document.getElementById("statusV3").textContent = '';
-         document.getElementById("output").textContent = ''; // Очищаем вывод кода
-         document.getElementById("input").value = ''; // Очищаем ввод кода
+         document.getElementById("codeOutput").textContent = ''; // Исправлен ID
+         document.getElementById("input").value = '';
      } else {
-         urlObfuscatorDiv.style.display = 'none';
-         codeObfuscatorDiv.style.display = 'block';
+         urlObfuscatorDiv.style.display = 'none'; // Скрываем URL обфускатор
+         codeObfuscatorDiv.style.display = 'block'; // Показываем обфускатор кода
          urlToggleBtn.textContent = '🔗'; // Иконка для ссылки
          urlToggleBtn.title = 'Переключить на URL обфускатор';
-         // Очищаем ввод/вывод URL при переключении
-         document.getElementById("urlInput").value = '';
-         document.getElementById("urlOutputContainer").innerHTML = '';
+         // Очищаем поля URL обфускатора при переключении на код
+         document.getElementById("urlInput").value = ''; // Исправлен ID
+         document.getElementById("urlOutputContainer").innerHTML = ''; // Исправлен ID
      }
 });
+
 
 // --- Вспомогательная функция для обфускатора кода ---
 
@@ -63,8 +71,8 @@ function getRandomInt(min, max) {
 function obfuscate(method, inputText) {
     // Используем ввод из секции обфускатора *кода*
     const input = inputText || document.getElementById("input").value.trim();
-    // Используем элемент вывода из секции обфускатора *кода*
-    const outputElement = document.getElementById("output");
+    // Используем элемент вывода из секции обфускатора *кода* (Исправлен ID)
+    const outputElement = document.getElementById("codeOutput");
 
     if (!input && !inputText) {
         alert("Введи Lua-код сначала!");
@@ -73,7 +81,7 @@ function obfuscate(method, inputText) {
         return "";
     }
 
-    if (!inputText) {
+    if (!inputText) { // Если вызывается не из многослойной обфускации
         outputElement.textContent = 'Генерация...';
         outputElement.style.borderColor = "#4CAF50";
          // Очищаем статусы только при активации кнопками обфускатора кода
@@ -234,7 +242,7 @@ function obfuscate(method, inputText) {
          return "";
     }
 
-     if (!inputText) {
+     if (!inputText) { // Если вызывается не из многослойной обфускации
         outputElement.textContent = output;
         outputElement.style.borderColor = "#4CAF50";
     }
@@ -244,7 +252,7 @@ function obfuscate(method, inputText) {
 // --- Функции многослойной обфускации (Используют адаптированную obfuscate) ---
 function startMultiLayerObfuscation() {
     const input = document.getElementById("input").value.trim();
-    const outputElement = document.getElementById("output");
+    const outputElement = document.getElementById("codeOutput"); // Исправлен ID
     if (!input) { alert("Введи Lua-код сначала!"); return; }
     outputElement.textContent = 'Запуск многослойной обфускации v1...'; outputElement.style.borderColor = "#4CAF50";
     const btn = document.getElementById("multiObfuscateBtn"); const status = document.getElementById("status");
@@ -262,7 +270,7 @@ function startMultiLayerObfuscation() {
 }
 function startMultiLayerObfuscationV2() {
      const input = document.getElementById("input").value.trim();
-     const outputElement = document.getElementById("output");
+     const outputElement = document.getElementById("codeOutput"); // Исправлен ID
      if (!input) { alert("Введи Lua-код сначала!"); return; }
      outputElement.textContent = 'Запуск многослойной обфускации v2...'; outputElement.style.borderColor = "#4CAF50";
      const btn = document.getElementById("multiObfuscateBtnV2"); const status = document.getElementById("statusV2");
@@ -280,7 +288,7 @@ function startMultiLayerObfuscationV2() {
 }
 function startMultiLayerObfuscationV3() {
      const input = document.getElementById("input").value.trim();
-     const outputElement = document.getElementById("output");
+     const outputElement = document.getElementById("codeOutput"); // Исправлен ID
      if (!input) { alert("Введи Lua-код сначала!"); return; }
      outputElement.textContent = 'Запуск многослойной обфускации v3...'; outputElement.style.borderColor = "#4CAF50";
      const btn = document.getElementById("multiObfuscateBtnV3"); const status = document.getElementById("statusV3");
@@ -302,7 +310,7 @@ function startMultiLayerObfuscationV3() {
 
 function deobfuscate() {
     const input = document.getElementById("input").value.trim();
-    const outputElement = document.getElementById("output");
+    const outputElement = document.getElementById("codeOutput"); // Исправлен ID
 
     document.getElementById("status").textContent = '';
     document.getElementById("statusV2").textContent = '';
@@ -539,7 +547,7 @@ function deobfuscate() {
                                 if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) { // Проверяем, что значение - валидный байт
                                      tempByteValues.push(byteValue);
                                      i += 4; // Перемещаемся за \xHH
-                                     continue; // Продолжаем цикл
+                                     continue;
                                 }
                            }
                       }
@@ -634,7 +642,7 @@ function deobfuscate() {
               outputElement.style.borderColor = "#ff9800"; // Цвет предупреждения
          } else if (output !== "") { // Проверяем, что output не пустой после успешной деобфускации
              // Успешно деобфусцировано и получен непустой результат.
-              // Убеждаемся, что он не начинается с сообщений об ошибках от предыдущих шагов, если они частично провалились.
+              // Убеждаемся, что он не начинается с сообщений об ошибках от предыдущих шагов если они частично провалились.
               if (!output.startsWith('Ошибка') && !output.startsWith('Не удалось')) {
                   outputElement.textContent = output; // Отображаем успешный результат
                   outputElement.style.borderColor = "#4CAF50"; // Цвет успеха
@@ -644,8 +652,8 @@ function deobfuscate() {
                    outputElement.style.borderColor = "#ff9800";
               }
          }
-         // Если output был установлен методом Unicode успешно, он попадает сюда.
-         // Если output был установлен запасным вариантом успешно, он тоже попадает сюда.
+         // Если output пустой и input был пустым, он также успешно попадает сюда
+         // и output остается "" что корректно.
 
 
     } catch (e) {
@@ -659,7 +667,7 @@ function deobfuscate() {
 
 // --- Функция копирования в буфер обмена (Обфускатор кода) ---
  function copyCodeToClipboard() {
-    const output = document.getElementById("output");
+    const output = document.getElementById("codeOutput"); // Исправлен ID
     const text = output.textContent;
 
      const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код сначала!', 'Не удалось распознать тип обфускации.', 'Ошибка обфускации', 'Ошибка деобфускации', 'Деобфускация завершена, но результат пуст', 'Запуск многослойной обфускации', 'Обфускация v1 завершена!', 'v1 Шаг', 'v1 Ошибка', 'Обфускация v2 завершена!', 'v2 Шаг', 'v2 Ошибка', 'Обфускация v3 завершена!', 'v3 Шаг', 'v3 Ошибка'];
@@ -670,7 +678,7 @@ function deobfuscate() {
 
     // Используем современный API Clipboard, если доступен
     navigator.clipboard.writeText(text).then(() => {
-         const btn = document.querySelector("#codeObfuscator .copy-btn"); // Выбираем конкретную кнопку
+         const btn = document.querySelector("#codeObfuscator .copy-btn"); // Выбираем конкретную кнопку в секции кода
          const originalText = btn.textContent;
          btn.textContent = "СКОПИРОВАНО!";
          btn.classList.add("copied"); // Добавляем класс для анимации/стиля
@@ -689,7 +697,7 @@ function deobfuscate() {
               ta.select();
               const ok = document.execCommand("copy");
               document.body.removeChild(ta);
-              const btn = document.querySelector("#codeObfuscator .copy-btn"); // Выбираем конкретную кнопку
+              const btn = document.querySelector("#codeObfuscator .copy-btn"); // Выбираем конкретную кнопку в секции кода
               const originalText = btn.textContent;
               if (ok) {
                   btn.textContent = "Скопировано!";
@@ -709,7 +717,7 @@ function deobfuscate() {
  }
 
 // --- Автовыбор текста при клике (Обфускатор кода) ---
-document.getElementById("output").addEventListener("click", function(event) {
+document.getElementById("codeOutput").addEventListener("click", function(event) { // Исправлен ID
     // Список текстов, при которых выбор не происходит
     const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код сначала!', 'Не удалось распознать тип обфускации.', 'Ошибка обфускации', 'Ошибка деобфускации', 'Деобфускация завершена, но результат пуст', 'Запуск многослойной обфускации', 'Обфускация v1 завершена!', 'v1 Шаг', 'v1 Ошибка', 'Обфускация v2 завершена!', 'v2 Шаг', 'v2 Ошибка', 'Обфускация v3 завершена!', 'v3 Шаг', 'v3 Ошибка'];
     // Проверяем, является ли текущий текст одним из исключенных
@@ -733,8 +741,8 @@ document.getElementById("output").addEventListener("click", function(event) {
 
 function encodeUrl() {
     // Используем правильные элементы ввода и вывода из текущей структуры HTML
-    const url = document.getElementById('urlInput').value.trim(); // Ввод - #urlInput
-    const urlOutputContainer = document.getElementById('urlOutputContainer'); // Контейнер вывода - #urlOutputContainer
+    const url = document.getElementById('urlInput').value.trim(); // Ввод - #urlInput (исправлен ID)
+    const urlOutputContainer = document.getElementById('urlOutputContainer'); // Контейнер вывода - #urlOutputContainer (исправлен ID)
 
     if (!url) {
         alert("Please enter a URL first");
@@ -767,7 +775,7 @@ function encodeUrl() {
             result += char; // Добавляем безопасный символ напрямую
         } else {
             // Кодируем кодовую единицу символа (возвращаемую charCodeAt(0)) как %HH
-            // Это может кодировать не-ASCII символы на основе их первой UTF-16 кодовой единицы,
+            // Это может кодировать не-ASCII символы на основе их первой UTF-16 кодовой единицы
             // если они находятся вне диапазона ASCII, что соответствует оригинальному поведению.
              result += "%" + char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0');
         }
@@ -793,7 +801,7 @@ function encodeUrl() {
 // --- Функция копирования в буфер обмена (URL обфускатор) - Адаптирована к текущим именам функций/ID ---
 function copyUrlToClipboard() {
     // Используем правильный ID textarea из текущей структуры HTML
-    const textarea = document.getElementById('urlLuaCode'); // ID элемента urlLuaCode
+    const textarea = document.getElementById('urlLuaCode'); // ID элемента urlLuaCode (исправлен)
 
     if (!textarea) {
          alert("No code to copy.");
@@ -851,11 +859,9 @@ function copyUrlToClipboard() {
 }
 
  // Обработчик нажатия Enter в поле ввода URL
- document.getElementById('urlInput').addEventListener('keypress', function(event) {
+ document.getElementById('urlInput').addEventListener('keypress', function(event) { // Исправлен ID
      if (event.key === 'Enter') {
          event.preventDefault(); // Отменяем стандартное поведение отправки формы
          encodeUrl(); // Вызываем функцию кодирования
      }
  });
-
-// === Конец содержимого script.js ===
