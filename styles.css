@@ -1,5 +1,3 @@
-/* --- Combined CSS --- */
-
 /* Base Body & Theme */
 body {
     font-family: Arial, sans-serif;
@@ -15,17 +13,15 @@ body.dark-theme {
     color: #e0e0e0;
 }
 
-/* Toggle Buttons Container */
+/* Toggle Buttons */
 .toggle-buttons {
     position: absolute;
     top: 15px;
     right: 15px;
-    display: flex; /* Arrange buttons side-by-side */
-    gap: 8px; /* Space between buttons */
+    display: flex;
+    gap: 8px;
     z-index: 10;
 }
-
-/* Toggle Button Base Style (for both theme and view toggle) */
 .toggle-buttons button {
     width: 30px;
     height: 30px;
@@ -38,8 +34,8 @@ body.dark-theme {
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
-    padding: 0; /* Remove default button padding */
-    font-size: 1rem; /* Icon size */
+    padding: 0;
+    font-size: 1rem;
 }
 body.dark-theme .toggle-buttons button {
     background: #333;
@@ -49,46 +45,45 @@ body.dark-theme .toggle-buttons button {
     transform: scale(1.1);
 }
 
-/* H1 Title - Applies to both sections */
+/* Заголовок */
 h1 {
     color: #333;
     text-align: center;
     font-size: 1.5rem;
     margin-bottom: 20px;
-    margin-top: 40px; /* Add space above h1 to clear toggle buttons */
+    margin-top: 40px;
 }
 body.dark-theme h1 {
     color: #fff;
 }
 
-/* --- Styles for Code Obfuscator Section (#codeObfuscator) --- */
+/* Code Obfuscator */
 #codeObfuscator textarea {
     width: 100%;
     height: 150px;
     padding: 10px;
     font-family: monospace;
-    border: 2px solid #4CAF50; /* Light theme accent */
+    border: 2px solid #4CAF50;
     border-radius: 5px;
     resize: vertical;
     font-size: 14px;
     box-sizing: border-box;
     margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    color: #333; /* Default text color */
+    color: #333;
 }
 body.dark-theme #codeObfuscator textarea {
     background-color: #1e1e1e;
-    color: #ffffff;
-    border-color: #2e7d32; /* Dark theme accent */
+    color: #fff;
+    border-color: #2e7d32;
 }
 
-#codeObfuscator #output { /* Основные стили для output */
+#codeObfuscator #output {
     width: 100%;
     min-height: 60px;
     padding: 10px;
     font-family: monospace;
     background-color: #fff;
-    border: 2px solid #4CAF50; /* Light theme accent */
+    border: 2px solid #4CAF50;
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 15px;
@@ -98,16 +93,14 @@ body.dark-theme #codeObfuscator textarea {
     overflow-wrap: break-word;
     user-select: all;
     box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    color: #333; /* Default text color */
+    color: #333;
 }
-body.dark-theme #codeObfuscator #output { /* Стили output для темной темы */
+body.dark-theme #codeObfuscator #output {
     background-color: #1e1e1e;
-    color: #ffffff;
+    color: #fff;
     border-color: #2e7d32;
 }
 
-/* Grid for standard obfuscation buttons */
 #codeObfuscator .buttons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -115,24 +108,21 @@ body.dark-theme #codeObfuscator #output { /* Стили output для темно
     margin: 15px 0;
 }
 
-/* Base button style (applied to grid buttons by default) */
 #codeObfuscator button {
     padding: 10px;
-    background-color: #4CAF50; /* Standard Green */
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.8rem;
     transition: all 0.3s;
-    width: 100%; /* Ensures buttons fill grid cells */
+    width: 100%;
     box-sizing: border-box;
 }
 body.dark-theme #codeObfuscator button {
-    background-color: #2e7d32; /* Dark theme Standard Green */
+    background-color: #2e7d32;
 }
-
-/* Hover for grid buttons */
 #codeObfuscator .buttons-grid button:hover {
     background-color: #45a049;
     transform: translateY(-2px);
@@ -143,7 +133,7 @@ body.dark-theme #codeObfuscator .buttons-grid button:hover {
     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
 
-/* Styles for the FULL-WIDTH buttons (Copy, Deobfuscate, Multi-Layer) */
+/* Full Width Buttons */
 #codeObfuscator .copy-btn,
 #codeObfuscator .deobfuscate-btn,
 #codeObfuscator .multi-obfuscate-btn,
@@ -152,37 +142,64 @@ body.dark-theme #codeObfuscator .buttons-grid button:hover {
     width: 100%;
     margin-top: 10px;
 }
-
-/* Specific colors remain the same */
-#codeObfuscator .copy-btn { background-color: #2196F3; }
-body.dark-theme #codeObfuscator .copy-btn { background-color: #1565c0; }
-#codeObfuscator .copy-btn:hover { background-color: #0b7dda; transform: translateY(-2px); }
-body.dark-theme #codeObfuscator .copy-btn:hover { background-color: #0d47a1; transform: translateY(-2px); }
-#codeObfuscator .copy-btn.copied { background-color: #4CAF50; animation: pulse 0.5s; }
-body.dark-theme #codeObfuscator .copy-btn.copied { background-color: #2e7d32; }
-
-#codeObfuscator .deobfuscate-btn { background-color: #ff9800; }
-body.dark-theme #codeObfuscator .deobfuscate-btn { background-color: #e65100; }
-#codeObfuscator .deobfuscate-btn:hover { background-color: #f57c00; transform: translateY(-2px); }
-body.dark-theme #codeObfuscator .deobfuscate-btn:hover { background-color: #bf360c; transform: translateY(-2px); }
-
+#codeObfuscator .copy-btn {
+    background-color: #2196F3;
+}
+body.dark-theme #codeObfuscator .copy-btn {
+    background-color: #1565c0;
+}
+#codeObfuscator .copy-btn:hover {
+    background-color: #0b7dda;
+}
+#codeObfuscator .copy-btn.copied {
+    background-color: #4CAF50;
+    animation: pulse 0.5s;
+}
+body.dark-theme #codeObfuscator .copy-btn:hover {
+    background-color: #0d47a1;
+}
+body.dark-theme #codeObfuscator .copy-btn.copied {
+    background-color: #2e7d32;
+}
+#codeObfuscator .deobfuscate-btn {
+    background-color: #ff9800;
+}
+body.dark-theme #codeObfuscator .deobfuscate-btn {
+    background-color: #e65100;
+}
+#codeObfuscator .deobfuscate-btn:hover {
+    background-color: #f57c00;
+}
+body.dark-theme #codeObfuscator .deobfuscate-btn:hover {
+    background-color: #bf360c;
+}
 #codeObfuscator .multi-obfuscate-btn,
 #codeObfuscator .multi-obfuscate-btn-v2,
-#codeObfuscator .multi-obfuscate-btn-v3 { background-color: #9c27b0; }
+#codeObfuscator .multi-obfuscate-btn-v3 {
+    background-color: #9c27b0;
+}
 body.dark-theme #codeObfuscator .multi-obfuscate-btn,
 body.dark-theme #codeObfuscator .multi-obfuscate-btn-v2,
-body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3 { background-color: #7b1fa2; }
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3 {
+    background-color: #7b1fa2;
+}
 #codeObfuscator .multi-obfuscate-btn:hover,
 #codeObfuscator .multi-obfuscate-btn-v2:hover,
-#codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #7b1fa2; transform: translateY(-2px); }
+#codeObfuscator .multi-obfuscate-btn-v3:hover {
+    background-color: #7b1fa2;
+}
 body.dark-theme #codeObfuscator .multi-obfuscate-btn:hover,
 body.dark-theme #codeObfuscator .multi-obfuscate-btn-v2:hover,
-body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3:hover { background-color: #4a148c; transform: translateY(-2px); }
+body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3:hover {
+    background-color: #4a148c;
+}
 #codeObfuscator .multi-obfuscate-btn.processing,
 #codeObfuscator .multi-obfuscate-btn-v2.processing,
-#codeObfuscator .multi-obfuscate-btn-v3.processing { animation: pulse 1s infinite; }
+#codeObfuscator .multi-obfuscate-btn-v3.processing {
+    animation: pulse 1s infinite;
+}
 
-/* Status messages */
+/* Status Messages */
 #codeObfuscator .status {
     margin-top: 5px;
     margin-bottom: 10px;
@@ -192,70 +209,62 @@ body.dark-theme #codeObfuscator .multi-obfuscate-btn-v3:hover { background-color
     color: #333;
     text-align: center;
     font-size: 0.9rem;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 body.dark-theme #codeObfuscator .status {
     background-color: #333;
     color: #e0e0e0;
 }
 
-/* --- Styles for URL Obfuscator Section (#urlObfuscator) --- */
+/* URL Obfuscator */
 #urlObfuscator .container {
-    /* Background and padding handled by body.dark-theme and container */
-     background-color: #fff; /* Light theme default */
-     padding: 20px;
-     border-radius: 8px;
-     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Light theme shadow */
-     max-width: 800px; /* Restrict width inside the main body padding */
-     margin: 0 auto; /* Center the container */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 0 auto;
 }
 body.dark-theme #urlObfuscator .container {
-     background-color: #2d2d2d;
-     box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Dark theme shadow */
+    background-color: #2d2d2d;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
-
-
 #urlObfuscator .subtitle {
     text-align: center;
-    color: #888; /* Applies to both themes, could be adjusted */
+    color: #888;
     margin-bottom: 20px;
     font-size: 0.9em;
 }
 body.dark-theme #urlObfuscator .subtitle {
-    color: #ccc; /* Slightly lighter in dark theme */
+    color: #ccc;
 }
-
-
 #urlObfuscator label {
     display: block;
     margin-bottom: 8px;
-    color: #333; /* Light theme default */
-    font-weight: bold; /* Added bold for clarity */
+    color: #333;
+    font-weight: bold;
 }
 body.dark-theme #urlObfuscator label {
     color: #aaa;
 }
-
-#urlObfuscator input {
-    /* Corrected width: use 100% with border-box */
+#urlObfuscator input,
+#urlObfuscator textarea {
     width: 100%;
-    padding: 14px; /* Increased padding slightly */
-    margin-bottom: 15px; /* Added space below input */
-    border: 1px solid #ccc; /* Light theme default */
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #f9f9f9; /* Light theme default */
-    color: #333; /* Light theme default */
+    background-color: #f9f9f9;
+    color: #333;
     font-family: 'Courier New', monospace;
-    box-sizing: border-box; /* Include padding/border in width */
+    box-sizing: border-box;
 }
-body.dark-theme #urlObfuscator input {
+body.dark-theme #urlObfuscator input,
+body.dark-theme #urlObfuscator textarea {
     border: 1px solid #444;
     background-color: #252525;
     color: #fff;
 }
-
-
-#urlObfuscator button { /* Applies to GENERATE button */
+#urlObfuscator button {
     background-color: #4CAF50;
     color: white;
     padding: 12px 20px;
@@ -266,7 +275,7 @@ body.dark-theme #urlObfuscator input {
     transition: background-color 0.3s;
     width: 100%;
     margin-bottom: 15px;
-    font-size: 1rem; /* Keep font size consistent with other buttons */
+    font-size: 1rem;
 }
 #urlObfuscator button:hover {
     background-color: #45a049;
@@ -277,54 +286,30 @@ body.dark-theme #urlObfuscator button {
 body.dark-theme #urlObfuscator button:hover {
     background-color: #1b5e20;
 }
-
-
 #urlObfuscator .output-container {
     margin-top: 25px;
-    border-top: 1px solid #eee; /* Light theme default */
+    border-top: 1px solid #eee;
     padding-top: 20px;
 }
 body.dark-theme #urlObfuscator .output-container {
     border-top: 1px solid #444;
 }
-
-
 #urlObfuscator .result-box {
     margin-bottom: 20px;
 }
 #urlObfuscator .result-label {
     font-weight: bold;
     margin-bottom: 4px;
-    color: #4CAF50; /* Green accent */
+    color: #4CAF50;
     display: block;
 }
-#urlObfuscator textarea { /* Applies to the result textarea */
-    /* Corrected width: use 100% with border-box */
-    width: 100%;
-    padding: 16px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc; /* Light theme default */
-    border-radius: 4px;
-    background-color: #f9f9f9; /* Light theme default */
-    color: #333; /* Light theme default */
-    font-family: 'Courier New', monospace;
-    resize: vertical;
-    min-height: 80px;
-    box-sizing: border-box; /* Include padding/border in width */
-}
-body.dark-theme #urlObfuscator textarea {
-    border: 1px solid #444;
-    background-color: #252525;
-    color: #fff;
-}
-
-#urlObfuscator .copy-btn { /* Specific style for the COPY button in URL section */
-    background-color: #2196F3; /* Blue */
-    width: auto; /* Allow button to size based on content/padding */
+#urlObfuscator .copy-btn {
+    background-color: #2196F3;
+    width: auto;
     padding: 10px 15px;
     margin-top: 5px;
-    display: inline-block; /* Don't force full width */
-    font-size: 0.9rem; /* Slightly smaller than main button */
+    display: inline-block;
+    font-size: 0.9rem;
 }
 #urlObfuscator .copy-btn:hover {
     background-color: #0b7dda;
@@ -335,34 +320,31 @@ body.dark-theme #urlObfuscator .copy-btn {
 body.dark-theme #urlObfuscator .copy-btn:hover {
     background-color: #0d47a1;
 }
-
 #urlObfuscator .warning {
-    color: #ff5722; /* Orange/Red */
+    color: #ff5722;
     margin-top: 20px;
     padding: 10px;
-    background-color: #fff3e0; /* Light background */
+    background-color: #fff3e0;
     border-radius: 4px;
     font-size: 0.85em;
     line-height: 1.5;
-    border: 1px solid #ff9800; /* Orange border */
+    border: 1px solid #ff9800;
 }
 body.dark-theme #urlObfuscator .warning {
     background-color: #332222;
     border: 1px solid #ff5722;
-    color: #ff9800; /* Lighter orange in dark mode */
+    color: #ff9800;
 }
-
-
 #urlObfuscator .url-display {
     word-break: break-all;
     padding: 12px;
-    background-color: #f9f9f9; /* Light theme default */
+    background-color: #f9f9f9;
     border-radius: 4px;
-    border: 1px solid #ccc; /* Light theme default */
+    border: 1px solid #ccc;
     margin-bottom: 15px;
     font-family: 'Courier New', monospace;
     white-space: pre-wrap;
-    color: #333; /* Light theme default */
+    color: #333;
 }
 body.dark-theme #urlObfuscator .url-display {
     background-color: #252525;
@@ -370,25 +352,25 @@ body.dark-theme #urlObfuscator .url-display {
     color: #fff;
 }
 
-
-/* Keyframes (unchanged) */
+/* Анимация */
 @keyframes pulse {
     0% { transform: scale(1) translateY(0px); }
     50% { transform: scale(1.03) translateY(-1px); }
     100% { transform: scale(1) translateY(0px); }
 }
 
-/* Media query adjustments (mainly for grid, apply to code obfuscator) */
+/* Адаптивность */
 @media (max-width: 768px) {
     #codeObfuscator .buttons-grid {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
-    /* Adjust base button style slightly if needed */
     #codeObfuscator button {
         font-size: 0.75rem;
         padding: 9px;
     }
-    h1 { font-size: 1.3rem; }
+    h1 {
+        font-size: 1.3rem;
+    }
 }
 @media (max-width: 480px) {
     #codeObfuscator .buttons-grid {
@@ -398,12 +380,14 @@ body.dark-theme #urlObfuscator .url-display {
         font-size: 0.7rem;
         padding: 8px;
     }
-    h1 { font-size: 1.2rem; }
-    #codeObfuscator #output, #codeObfuscator textarea { font-size: 12px; }
-    /* Adjust padding for inputs/textareas in URL section as well */
-    /* Width remains 100% due to border-box */
-    #urlObfuscator input, #urlObfuscator textarea {
-        padding: 10px; /* Smaller padding on smaller screens */
+    h1 {
+        font-size: 1.2rem;
     }
-
+    #codeObfuscator #output,
+    #codeObfuscator textarea,
+    #urlObfuscator input,
+    #urlObfuscator textarea {
+        font-size: 12px;
+        padding: 10px;
+    }
 }
