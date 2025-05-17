@@ -8,9 +8,9 @@
 </head>
 <body>
     <div class="toggle-buttons">
-        <button class="save-button" id="saveButton">💾</button>
-        <button id="themeToggle">🌙</button>
-        <button id="urlToggleBtn" title="Переключить на URL обфускатор">🔗</button>
+        <button class="save-button" id="saveButton" title="Сохранить в файл">💾</button>
+        <button id="themeToggle" title="Переключить тему">🌙</button>
+         <button id="urlToggleBtn" title="Переключить на URL обфускатор">🔗</button>
     </div>
 
     <div id="codeObfuscator">
@@ -61,12 +61,33 @@
 
             <button onclick="encodeUrl()">GENERATE OBFUSCATED CODE</button>
 
-            <div class="output-container" id="urlOutputContainer"></div>
+            <div class="output-container" id="urlOutputContainer">
+            </div>
 
             <div class="warning">
                 <strong>WARNING:</strong> Эта кодировка предназначена только для URL.<br>
                 символы которые останутся без изменений: / = + - _ ~ :<br>
                 Работоспособность скрипта является 100% если он небыл удалён.
+            </div>
+        </div>
+    </div>
+
+    <div id="saveFileDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-box">
+            <input type="text" id="fileNameInput" placeholder="Имя файла...">
+            <div class="dialog-buttons">
+                <button id="saveFileOkBtn">OK</button>
+                <button id="saveFileCancelBtn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="formatDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-box">
+            <div class="dialog-message">Выберите формат файла:</div>
+            <div class="dialog-buttons">
+                <button id="saveLuaBtn" class="green-button">Lua</button>
+                <button id="saveTextBtn" class="green-button">Текстовый</button>
             </div>
         </div>
     </div>
