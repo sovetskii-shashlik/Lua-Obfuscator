@@ -395,4 +395,99 @@ body.dark-theme #urlObfuscator .url-display {
     #urlObfuscator input, #urlObfuscator textarea {
         padding: 10px; /* Smaller padding on smaller screens */
     }
+/* Dialog Styling */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Ensure it's on top */
+}
+.dialog-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 90%;
+    width: 300px; /* Fixed width for dialogs */
+}
+ body.dark-theme .dialog-box {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+ }
+
+.dialog-box input[type="text"] {
+     width: calc(100% - 20px); /* Adjust width for padding */
+     padding: 10px;
+     margin-bottom: 15px;
+     border: 2px solid #4CAF50;
+     border-radius: 5px;
+     font-size: 1rem;
+     box-sizing: border-box;
+     background-color: #fff; /* White background */
+     color: #333; /* Dark text */
+}
+ body.dark-theme .dialog-box input[type="text"] {
+     background-color: #1e1e1e;
+     color: #ffffff;
+     border-color: #2e7d32;
+ }
+
+.dialog-box .dialog-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.dialog-box .dialog-buttons button {
+     flex-grow: 1; /* Make buttons fill available space */
+     font-size: 0.9rem;
+     padding: 10px 15px;
+}
+
+.dialog-box .dialog-message {
+     margin-bottom: 15px;
+     font-size: 1rem;
+     color: #333;
+}
+ body.dark-theme .dialog-box .dialog-message {
+     color: #e0e0e0;
+ }
+
+/* Style for Lua/Text buttons (green) */
+.dialog-box .dialog-buttons .green-button {
+     background-color: #4CAF50;
+     color: white;
+}
+ body.dark-theme .dialog-box .dialog-buttons .green-button {
+     background-color: #2e7d32;
+ }
+ .dialog-box .dialog-buttons .green-button:hover {
+     background-color: #45a049;
+ }
+ body.dark-theme .dialog-box .dialog-buttons .green-button:hover {
+     background-color: #1b5e20;
+ }
+
+/* Adjust button font size for smaller screens */
+@media (max-width: 600px) {
+    .buttons {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+    button {
+        font-size: 0.7rem;
+        padding: 8px;
+    }
+     .dialog-box {
+         width: 95%; /* Make dialogs take more width on small screens */
+     }
+     .top-buttons {
+         right: 5px; /* Adjust position */
+     }
 }
