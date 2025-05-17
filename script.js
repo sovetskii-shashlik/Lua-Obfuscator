@@ -6,6 +6,7 @@
         document.body.classList.toggle('dark-theme');
         const isDark = document.body.classList.contains('dark-theme');
         themeToggle.textContent = isDark ? '☀️' : '🌙';
+        themeToggle.title = isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему';
         // Store theme preference
         localStorage.setItem('darkTheme', isDark);
     });
@@ -14,8 +15,10 @@
     if (localStorage.getItem('darkTheme') === 'true') {
         document.body.classList.add('dark-theme');
         themeToggle.textContent = '☀️';
+        themeToggle.title = 'Переключить на светлую тему';
     } else {
          themeToggle.textContent = '🌙'; // Ensure correct icon on light theme load
+         themeToggle.title = 'Переключить на темную тему';
     }
 
     // --- View Toggle Logic ---
@@ -154,7 +157,9 @@
         document.getElementById("statusV2").textContent = ''; document.getElementById("statusV3").textContent = '';
 
         btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v1..."; status.textContent = "Запуск v1...";
-        let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "unicode", name: "Unicode" }, { method: "base3", name: "Base3" } ]; let step = 0;
+        const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "unicode", name: "Unicode" }, { method: "base3", name: "Base3" } ]; let step = 0;
+        let currentCode = input; // Initialize currentCode with input
+
         function processNextStep() {
             if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v1"; status.textContent = "Обфускация v1 завершена!"; return; }
             const currentMethod = steps[step]; status.textContent = `v1 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
@@ -179,7 +184,9 @@
          document.getElementById("status").textContent = ''; document.getElementById("statusV3").textContent = '';
 
          btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v2..."; status.textContent = "Запуск v2...";
-         let currentCode = input; const steps = [ { method: "prime", name: "Простое число" }, { method: "hex", name: "HEX" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "base4", name: "Base4" } ]; let step = 0;
+         const steps = [ { method: "prime", name: "Простое число" }, { method: "hex", name: "HEX" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "base4", name: "Base4" } ]; let step = 0;
+         let currentCode = input; // Initialize currentCode with input
+
          function processNextStep() {
              if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v2"; status.textContent = "Обфускация v2 завершена!"; return; }
              const currentMethod = steps[step]; status.textContent = `v2 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
@@ -204,7 +211,9 @@
          document.getElementById("status").textContent = ''; document.getElementById("statusV2").textContent = '';
 
          btn.disabled = true; btn.classList.add("processing"); btn.textContent = "ОБФУСКАЦИЯ v3..."; status.textContent = "Запуск v3...";
-         let currentCode = input; const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "hex", name: "HEX" }, { method: "base5", name: "Base5" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "binary", name: "Binary" } ]; let step = 0;
+         const steps = [ { method: "random_offset", name: "Смещение (Рандом)" }, { method: "hex", name: "HEX" }, { method: "base5", name: "Base5" }, { method: "random_multiply", name: "Умножение (Рандом)" }, { method: "binary", name: "Binary" } ]; let step = 0;
+         let currentCode = input; // Initialize currentCode with input
+
          function processNextStep() {
              if (step >= steps.length) { btn.disabled = false; btn.classList.remove("processing"); btn.textContent = "МНОГОСЛОЙНАЯ ОБФУСКАЦИЯ v3"; status.textContent = "Обфускация v3 завершена!"; return; }
              const currentMethod = steps[step]; status.textContent = `v3 Шаг ${step + 1}/${steps.length}: ${currentMethod.name}`; const obfuscatedStep = obfuscate(currentMethod.method, currentCode);
@@ -445,15 +454,22 @@
                  }
              }
 
+
+             // Check if any deobfuscation method was successful
              if (!deobfuscated) {
                   output = "Не удалось распознать тип обфускации.";
                   outputElement.style.borderColor = "#ff9800";
-             } else if (output === "" && input !== "") {
+             } else if (output.startsWith('--[[')) {
+                  // Error from the obfuscate function during a deobfuscation step (shouldn't happen here, but safety)
+                  outputElement.style.borderColor = "#ff9800";
+             }
+             else if (output === "" && input !== "") {
                  output = "Код деобфусцирован, но результат пуст (возможно, был пустой код после обфускации или проблема в данных).";
                  outputElement.style.borderColor = "#ff9800";
-             } else if (output !== "" && !output.startsWith('Ошибка деобфускации') && !output.startsWith('Не удалось распознать')) {
+             } else { // Successful deobfuscation with content
                   outputElement.style.borderColor = "#4CAF50";
              }
+
 
         } catch (e) {
              console.error("Deobfuscation error:", e);
@@ -546,7 +562,7 @@
 
          // Define characters considered "safe" by this specific script's logic.
          // These will NOT be percent-encoded.
-         const safeChars = new Set(['/', '=', '+', '_', '~', ':']);
+         const safeChars = new Set(['/', '=', '+', '-', '_', '~', ':']);
 
          let encodedUrlPart = "";
          let i = 0;
@@ -675,6 +691,7 @@
               event.preventDefault(); // Prevent form submission
               encodeUrl(); // Trigger the function
           }
+      });
 
 // --- Сохранение файла ---
         const saveButton = document.getElementById('saveButton');
@@ -691,10 +708,28 @@
         // Show the file name dialog
         saveButton.addEventListener('click', () => {
             const outputText = document.getElementById("output").textContent.trim();
-            if (!outputText) {
+            // Also check the URL obfuscator output if it's visible
+             const urlOutputTextArea = document.getElementById('urlLuaCode');
+             const urlOutputText = urlOutputTextArea ? urlOutputTextArea.value.trim() : '';
+             const isUrlSectionVisible = urlObfuscatorDiv.style.display !== 'none';
+
+             let textToSave = '';
+             if (isUrlSectionVisible && urlOutputText) {
+                 textToSave = urlOutputText;
+             } else if (!isUrlSectionVisible && outputText) {
+                 textToSave = outputText;
+             }
+
+
+            if (!textToSave) {
                 alert("Нет кода для сохранения. Сначала проведите обфускацию.");
                 return;
             }
+
+             // Store the text to be saved temporarily, maybe in a data attribute or a global var
+             saveButton.dataset.textToSave = textToSave;
+
+
             saveFileDialog.style.display = 'flex'; // Show dialog
             fileNameInput.value = ''; // Clear previous input
             fileNameInput.focus(); // Focus the input field
@@ -707,7 +742,18 @@
             if (filename) {
                 currentFileName = filename; // Store filename
                 saveFileDialog.style.display = 'none'; // Hide name dialog
-                formatDialog.style.display = 'flex'; // Show format dialog
+                 // Determine which format options to show
+                 const isUrlSectionVisible = urlObfuscatorDiv.style.display !== 'none';
+                 if (isUrlSectionVisible) {
+                     // URL obfuscator only saves as .lua (or .txt, but .lua is the main use case)
+                      // We'll just proceed to save as lua for simplicity, or could show a simplified dialog
+                      // Let's just save as lua automatically for the URL case.
+                      downloadFile(currentFileName, 'lua', saveButton.dataset.textToSave);
+                 } else {
+                     // Code obfuscator can save as .lua or .txt
+                     formatDialog.style.display = 'flex'; // Show format dialog
+                 }
+
             } else {
                 alert("Введите имя файла!");
                 fileNameInput.focus();
@@ -729,20 +775,19 @@
 
         // Handle format selection
         saveLuaBtn.addEventListener('click', () => {
-            downloadFile(currentFileName, 'lua');
+            downloadFile(currentFileName, 'lua', saveButton.dataset.textToSave);
             formatDialog.style.display = 'none'; // Hide format dialog
         });
 
         saveTextBtn.addEventListener('click', () => {
-            downloadFile(currentFileName, 'txt');
+            downloadFile(currentFileName, 'txt', saveButton.dataset.textToSave);
             formatDialog.style.display = 'none'; // Hide format dialog
         });
 
         // Function to download the file
-        function downloadFile(filename, format) {
-            const outputText = document.getElementById("output").textContent;
-            // Использование application/octet-stream для предотвращения двойного расширения
-            const blob = new Blob([outputText], { type: 'application/octet-stream' });
+        function downloadFile(filename, format, textContent) {
+            // Use the text content passed to the function, which was stored from the relevant output
+            const blob = new Blob([textContent], { type: 'application/octet-stream' });
             const url = URL.createObjectURL(blob);
 
             const a = document.createElement('a');
@@ -754,13 +799,54 @@
             // Clean up
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+             // Clear the temporarily stored text
+            delete saveButton.dataset.textToSave;
         }
 
-        // Автовыделение при клике на результат
+        // Автовыделение при клике на результат (Code Obfuscator)
         document.getElementById("output").addEventListener("click", function() {
-            const range = document.createRange();
-            range.selectNode(this);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
+            const excludedTexts = ['Генерация...', 'Деобфускация...', 'Введите обфусцированный код сначала!', 'Не удалось распознать тип обфускации.', 'Ошибка обфускации', 'Ошибка деобфускации', 'Деобфускация завершена, но результат пуст', 'Запуск многослойной обфускации', 'Обфускация v1 завершена!', 'v1 Шаг', 'v1 Ошибка', 'Обфускация v2 завершена!', 'v2 Шаг', 'v2 Ошибка', 'Обфускация v3 завершена!', 'v3 Шаг', 'v3 Ошибка'];
+            if (!this.textContent || excludedTexts.some(prefix => this.textContent.startsWith(prefix))) {
+                 return;
+             }
+            try {
+                 const range = document.createRange();
+                 range.selectNodeContents(this);
+                 const selection = window.getSelection();
+                 selection.removeAllRanges();
+                 selection.addRange(range);
+            } catch (e) {
+                 console.warn("Could not select text.", e);
+            }
         });
-      });
+
+         // Автовыделение при клике на результат (URL Obfuscator)
+         // Need to add an event listener to the textarea created dynamically
+         // This requires a different approach, potentially event delegation or adding the listener
+         // when the textarea is created. For simplicity, let's add a click handler to the container
+         // and check if the clicked element is the textarea.
+
+         document.getElementById('urlOutputContainer').addEventListener('click', function(event) {
+             if (event.target && event.target.id === 'urlLuaCode') {
+                 try {
+                      const textarea = event.target;
+                      textarea.select();
+                 } catch (e) {
+                      console.warn("Could not select text in URL textarea.", e);
+                 }
+             }
+             // Also handle clicking the url-display div for selection
+             if (event.target && event.target.classList.contains('url-display')) {
+                  try {
+                       const urlDisplay = event.target;
+                       const range = document.createRange();
+                       range.selectNodeContents(urlDisplay);
+                       const selection = window.getSelection();
+                       selection.removeAllRanges();
+                       selection.addRange(range);
+                  } catch (e) {
+                       console.warn("Could not select text in URL display div.", e);
+                  }
+             }
+         });
+
